@@ -5,6 +5,11 @@
 
 //Constructor
 Rock::Rock(Rock *parent, int num) {
+    if(parent != NULL) {
+    
+    } else {
+
+    }
 }
 
 //Destructor

@@ -3,13 +3,13 @@
 //Class definition
 #include "Man.h"
 #include "Shot.h"
-#include "player.h"
+#include "man.h"
 
 UL_IMAGE * Man::img;
 
 //Constructor
 Man::Man(int x, int y) {
-	this->img = ulLoadImageFilePNG((const char*)player, (int)player_size, UL_IN_VRAM, UL_PF_PAL2);
+	this->img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL2);
 
     this->x = x;
     this->y = y;
