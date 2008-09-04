@@ -13,8 +13,8 @@ private:
     Game *game;
 
 public:
-    int x, y;
-    Man(Game *game, int x, int y);
+    float x, y;
+    Man(Game *game, float x, float y);
     ~Man();
    
     void update();

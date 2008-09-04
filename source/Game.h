@@ -12,10 +12,10 @@
 #include "Rock.h"
 
 #define WALL_LEFT 0
-#define WALL_RIGHT 255
-#define FLOOR 162
+#define WALL_RIGHT 127
+#define FLOOR 81
 #define CEILING 0
-#define MAN_SPEED 3
+#define MAN_SPEED 1.5
 #define MAX_SHOTS 2
 
 

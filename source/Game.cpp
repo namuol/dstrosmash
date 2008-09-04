@@ -11,7 +11,7 @@ UL_IMAGE * Game::bgImg = NULL;
 
 Game::Game() {
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
-    theMan = new Man(this, 128, FLOOR);	
+    theMan = new Man(this, 32, FLOOR);	
 }
 
 Game::~Game() {

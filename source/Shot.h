@@ -4,7 +4,7 @@
 #include <ulib/ulib.h>
 #include <list>
 class Game;
-#define SHOT_SPEED -10
+#define SHOT_SPEED -5
 #define SHOT_WIDTH 4
 #define SHOT_HEIGHT 16
 class Shot {

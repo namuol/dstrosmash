@@ -26,5 +26,5 @@ void Shot::update() {
 }
 
 void Shot::draw() {
-    ulDrawFillRect(this->x, this->y, this->x+SHOT_WIDTH, this->y+SHOT_HEIGHT, RGB15(31,31,31));
+    ulDrawFillRect(x*2, y*2, x*2+SHOT_WIDTH, y*2+SHOT_HEIGHT, RGB15(31,31,31));
 }

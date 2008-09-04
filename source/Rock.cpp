@@ -24,7 +24,7 @@ Rock::Rock(Game *game, Rock *parent, int num) {
     vx = ulMax(MIN_ROCK_XSPEED, 0.01 * RAND(100*MAX_ROCK_XSPEED));
     vy = ulMax(MIN_ROCK_XSPEED, 0.01 * RAND(100*MAX_ROCK_YSPEED));
     vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
-    x = RAND(UL_SCREEN_WIDTH);
+    x = RAND(WALL_RIGHT);
     y = 0;
 
     if(parent != NULL) {
@@ -50,7 +50,7 @@ void Rock::update() {
 }
 
 void Rock::draw() {
-    ulDrawImageXY( Rock::img, round(this->x), round(this->y) );
+    ulDrawImageXY( Rock::img, round(x)*2, round(y)*2);
 }
 
 void Rock::kill(RockDeathType deathType) {

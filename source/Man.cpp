@@ -1,5 +1,6 @@
 #include "Man.h"
 #include "Game.h"
+#include "math.h"
 
 #include "Rock.h"
 #include "Shot.h"
@@ -7,7 +8,7 @@
 UL_IMAGE * Man::img = NULL;
 
 //Constructor
-Man::Man(Game *game, int x, int y) {
+Man::Man(Game *game, float x, float y) {
     if( img == NULL )
         img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL2);
     this->game = game;
@@ -26,15 +27,15 @@ void Man::update() {
     else if( ul_keys.held.right )
         x += MAN_SPEED;
 
-    x = ulMax(WALL_LEFT, x);
-    x = ulMin(WALL_RIGHT, x);
+    x = ulMin(WALL_LEFT, x);
+    x = ulMax(WALL_RIGHT, x);
 
     if( ul_keys.pressed.A )
         shoot();
 }
 
 void Man::draw() {
-    ulDrawImageXY( Man::img, x-7, y-8 );
+    ulDrawImageXY( Man::img, round(x)*2-7, round(y)*2-8 );
 }
 
 void Man::shoot() {
