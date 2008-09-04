@@ -1,6 +1,20 @@
 #ifndef _ROCK_H
 #define _ROCK_H
+
 #include <ulib/ulib.h>
+
+#define NUM_ROCK_IMAGES 6
+#include "sm1.h"
+#include "sm2.h"
+#include "sm3.h"
+#include "lg1.h"
+#include "lg2.h"
+#include "lg3.h"
+
+#define MIN_ROCK_YSPEED 2
+#define MAX_ROCK_YSPEED 6
+#define MIN_ROCK_XSPEED 0
+#define MAX_ROCK_XSPEED 1
 
 enum RockDeathType { 
     LAND, // When the rock hits the ground
@@ -10,15 +24,19 @@ enum RockDeathType {
 
 class Rock {
 private:
-	int x, y;
+    Game *game;
+    UL_IMAGE *img;
+	float x, y;
+    float vx, vy;
 
 public:
-   Rock(Rock *parent, int num);
-   ~Rock();
+    static UL_IMAGE *images[NUM_ROCK_IMAGES];
+    Rock(Game *game, Rock *parent, int num);
+    ~Rock();
    
-   void update();
-   void draw();
-   void kill(RockDeathType deathType);
+    void update();
+    void draw();
+    void kill(RockDeathType deathType);
 };
 
 #endif
