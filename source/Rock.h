@@ -24,12 +24,14 @@ enum RockDeathType {
 
 class Rock {
 private:
+    int color;
     Game *game;
     UL_IMAGE *img;
 	float x, y;
     float vx, vy;
 
 public:
+    static const int ROCK_COLORS[];
     static UL_IMAGE *images[NUM_ROCK_IMAGES];
     Rock(Game *game, Rock *parent, int num);
     ~Rock();

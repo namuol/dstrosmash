@@ -2,12 +2,24 @@
  * Game - a Game object is an instance of an ASTROSMASH! game.
  */
 #include "Game.h"
+#include "main.h"
 #include "bg.h" // The background image
 
 #include <list>
 using namespace std;
 
 UL_IMAGE * Game::bgImg = NULL;
+
+const int Game::INTV_PALETTE[] = {
+    RGB15(31,31,31),
+    RGB15(31,28,10),
+    RGB15(0,20,10),
+    RGB15(10,13,0),
+    RGB15(24,25,21),
+    RGB15(31,7,2),
+    RGB15(0,5,31),
+    RGB15(0,0,0)
+};
 
 Game::Game() {
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
@@ -63,6 +75,10 @@ void Game::draw() {
         (*r)->draw();
     }
 
+
+	int cpuTime = (TIMER1_DATA * 1000) / totalTime;
+	ulPrintf_xy(0, 0, "CPU: %02i.%i%%", cpuTime / 10, cpuTime % 10);
+
 	//End the drawing
 	ulEndDrawing();
 		
@@ -71,10 +87,21 @@ void Game::draw() {
 }
 
 void Game::mainLoop() {
+
+    //To avoid a divide by zero the first time
+	totalTime = 1;
+
+
 	while(1) {
+        //Initialize the timers to measure the framerate
+	    TIMER1_CR = 0;
+	    TIMER1_DATA = 0;
+	    TIMER1_CR = TIMER_DIV_64 | TIMER_ENABLE;
+
         if(RAND(30)==0)
             rocks.push_back(new Rock(this, 0,0));
         update();
         draw();
+		totalTime = TIMER1_DATA;
 	}
 }

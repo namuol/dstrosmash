@@ -10,7 +10,7 @@ UL_IMAGE * Man::img = NULL;
 //Constructor
 Man::Man(Game *game, float x, float y) {
     if( img == NULL )
-        img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL2);
+        img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL4);
     this->game = game;
     this->x = x;
     this->y = y;

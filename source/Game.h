@@ -21,11 +21,13 @@
 
 class Game {
 private:
+    int totalTime;
 	static UL_IMAGE *bgImg;
     void update();
     void draw();
 
 public:
+    static const int INTV_PALETTE[];
     Man *theMan;
     std::list<Shot *> shots;
     std::list<Rock *> rocks;
