@@ -5,10 +5,9 @@
 #include "Game.h"
 
 //Constructor
-Shot::Shot(Game *game) {
-    this->game = game;
-    this->x = game->theMan->x;
-    this->y = game->theMan->y;
+Shot::Shot(Game *game) 
+: Sprite( game, round(game->theMan->x)+MAN_WIDTH/2, game->theMan->y )
+{
 }
 
 //Destructor
@@ -22,9 +21,12 @@ void Shot::update() {
         y += SHOT_SPEED;
     } else {
         delete this;
+        return;
     }
+    
+    Sprite::update();
 }
 
 void Shot::draw() {
-    ulDrawFillRect(x*2, y*2, x*2+SHOT_WIDTH, y*2+SHOT_HEIGHT, RGB15(31,31,31));
+    ulDrawFillRect(imgx, imgy, imgx+SHOT_WIDTH*2, imgy+SHOT_HEIGHT*2, RGB15(31,31,31));
 }

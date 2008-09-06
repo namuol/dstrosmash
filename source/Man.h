@@ -1,24 +1,17 @@
 #ifndef _MAN_H
 #define _MAN_H
 
-#include <ulib/ulib.h>
-#include <list>
-#include "man.h"
+#include "Sprite.h"
 
-class Game;
+#define MAN_HEIGHT 8
+#define MAN_WIDTH 7
 
-class Man {
-private:
-	static UL_IMAGE *img;
-    Game *game;
-
+class Man : public Sprite {
 public:
-    float x, y;
     Man(Game *game, float x, float y);
     ~Man();
    
     void update();
-    void draw();
     void shoot();
 };
 

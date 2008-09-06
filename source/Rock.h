@@ -11,10 +11,10 @@
 #include "lg2.h"
 #include "lg3.h"
 
-#define MIN_ROCK_YSPEED 1
-#define MAX_ROCK_YSPEED 3
+#define MIN_ROCK_YSPEED 0.5
+#define MAX_ROCK_YSPEED 1.5
 #define MIN_ROCK_XSPEED 0
-#define MAX_ROCK_XSPEED 1
+#define MAX_ROCK_XSPEED 0.75
 
 enum RockDeathType { 
     LAND, // When the rock hits the ground
@@ -22,12 +22,9 @@ enum RockDeathType {
     OUT_OF_BOUNDS // When the rock goes off the screen (doesn't affect the score)
 };
 
-class Rock {
+class Rock : public Sprite {
 private:
     int color;
-    Game *game;
-    UL_IMAGE *img;
-	float x, y;
     float vx, vy;
 
 public:

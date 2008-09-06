@@ -27,7 +27,6 @@ int main() {
     Game game;
     game.mainLoop();
 
-
 	//Program end - should never get there
 	return 0;
 }

@@ -1,23 +1,24 @@
 #include "Man.h"
+#include "Sprite.h"
 #include "Game.h"
-#include "math.h"
 
-#include "Rock.h"
+#include "math.h"
+#include <ulib/ulib.h>
+
 #include "Shot.h"
 
-UL_IMAGE * Man::img = NULL;
+#include "man.h"
 
 //Constructor
-Man::Man(Game *game, float x, float y) {
-    if( img == NULL )
-        img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL4);
-    this->game = game;
-    this->x = x;
-    this->y = y;
+Man::Man(Game *game, float x, float y) 
+: Sprite( game, x, y ) // Call superclass Sprite constructor. 
+{
+    this->img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL4);
 }
 
 //Destructor
 Man::~Man()	{
+    ulDeleteImage(img);
 }
 
 void Man::update() {
@@ -32,10 +33,9 @@ void Man::update() {
 
     if( ul_keys.pressed.A )
         shoot();
-}
 
-void Man::draw() {
-    ulDrawImageXY( Man::img, round(x)*2-7, round(y)*2-8 );
+
+    Sprite::update();
 }
 
 void Man::shoot() {

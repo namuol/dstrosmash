@@ -2,6 +2,7 @@
  * Game - a Game object is an instance of an ASTROSMASH! game.
  */
 #include "Game.h"
+#include "Man.h"
 #include "main.h"
 #include "bg.h" // The background image
 
@@ -23,7 +24,7 @@ const int Game::INTV_PALETTE[] = {
 
 Game::Game() {
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
-    theMan = new Man(this, 32, FLOOR);	
+    theMan = new Man(this, 32, FLOOR-MAN_HEIGHT);	
 }
 
 Game::~Game() {
@@ -79,6 +80,8 @@ void Game::draw() {
 	int cpuTime = (TIMER1_DATA * 1000) / totalTime;
 	ulPrintf_xy(0, 0, "CPU: %02i.%i%%", cpuTime / 10, cpuTime % 10);
 
+    //ulDrawLine(0, FLOOR*2, UL_SCREEN_WIDTH, FLOOR*2, RGB15(31,0,0));
+
 	//End the drawing
 	ulEndDrawing();
 		
@@ -99,7 +102,7 @@ void Game::mainLoop() {
 	    TIMER1_CR = TIMER_DIV_64 | TIMER_ENABLE;
 
         if(RAND(30)==0)
-            rocks.push_back(new Rock(this, 0,0));
+            rocks.push_back(new Rock(this, 0, 0));
         update();
         draw();
 		totalTime = TIMER1_DATA;
