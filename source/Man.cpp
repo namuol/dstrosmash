@@ -11,9 +11,8 @@
 
 //Constructor
 Man::Man(Game *game, float x, float y) 
-: Sprite( game, x, y ) // Call superclass Sprite constructor. 
+: Sprite( game, ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL4), x, y ) // Call superclass Sprite constructor. 
 {
-    this->img = ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL4);
 }
 
 //Destructor
@@ -33,7 +32,6 @@ void Man::update() {
 
     if( ul_keys.pressed.A )
         shoot();
-
 
     Sprite::update();
 }

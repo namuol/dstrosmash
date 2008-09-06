@@ -11,10 +11,22 @@
 #include "math.h"
 
 //Constructor
-Sprite::Sprite(Game *game, float x, float y) {
+Sprite::Sprite(Game *game, UL_IMAGE *img, float x, float y) {
+    this->game = game;
+    this->img = img;
+    this->x = x;
+    this->y = y;
+    w = img->sizeX/2;
+    h = img->sizeY/2;
+}
+
+
+Sprite::Sprite(Game *game, float x, float y, int w, int h) {
     this->game = game;
     this->x = x;
     this->y = y;
+    this->w = w;
+    this->h = h;
 }
 
 //Destructor

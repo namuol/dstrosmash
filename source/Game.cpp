@@ -80,8 +80,6 @@ void Game::draw() {
 	int cpuTime = (TIMER1_DATA * 1000) / totalTime;
 	ulPrintf_xy(0, 0, "CPU: %02i.%i%%", cpuTime / 10, cpuTime % 10);
 
-    //ulDrawLine(0, FLOOR*2, UL_SCREEN_WIDTH, FLOOR*2, RGB15(31,0,0));
-
 	//End the drawing
 	ulEndDrawing();
 		

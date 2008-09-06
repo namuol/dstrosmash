@@ -1,8 +1,13 @@
 //Our main file
 #include "util.h"
+
+#include <list>
+using namespace std;
+
 #include "math.h"
 //Class definition
 #include "Game.h"
+#include "Shot.h"
 #include "Rock.h"
 #include "lg1.h"
 
@@ -19,7 +24,7 @@ const int Rock::ROCK_COLORS[] = {
 
 //Constructor
 Rock::Rock(Game *game, Rock *parent, int num) 
-: Sprite(game, RAND(WALL_RIGHT), 0)
+: Sprite(game, images[RAND(NUM_ROCK_IMAGES)], RAND(WALL_RIGHT), 0)
 {
     if ( images[0] == NULL ) {
         images[0] = ulLoadImageFilePNG((const char*)sm1, (int)sm1_size, UL_IN_VRAM, UL_PF_PAL4);
@@ -30,8 +35,7 @@ Rock::Rock(Game *game, Rock *parent, int num)
         images[5] = ulLoadImageFilePNG((const char*)lg3, (int)lg3_size, UL_IN_VRAM, UL_PF_PAL4);
     }
 
-    color = Game::INTV_PALETTE[RAND(6)];
-    img = images[RAND(NUM_ROCK_IMAGES)];
+    color = ROCK_COLORS[RAND(6)];
 
     vx = ulMax(MIN_ROCK_XSPEED, (float)rand()/RAND_MAX * MAX_ROCK_XSPEED);
     vy = ulMax(MIN_ROCK_YSPEED, (float)rand()/RAND_MAX * MAX_ROCK_YSPEED);
@@ -51,9 +55,19 @@ Rock::~Rock() {
 
 void Rock::update() {
     // NOTE: We assume that ulReadKeys(0) is called before each update. 
-    if( y > FLOOR ) {
+    if( BOTTOM(this) > FLOOR ) {
         delete this;
         return;
+    }
+
+    list<Shot *>::iterator s;
+    list<Shot *> tmpShots( game->shots ); 
+    for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
+        if(COLTEST(this, (*s)) ) {
+            delete (*s);
+            delete this;
+            return;
+        }
     }
 
     x += vx;

@@ -6,7 +6,7 @@
 
 //Constructor
 Shot::Shot(Game *game) 
-: Sprite( game, round(game->theMan->x)+MAN_WIDTH/2, game->theMan->y )
+: Sprite( game, round(game->theMan->x)+MAN_WIDTH/2, game->theMan->y, SHOT_WIDTH, SHOT_HEIGHT )
 {
 }
 
