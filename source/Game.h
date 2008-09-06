@@ -11,8 +11,8 @@
 #include "Shot.h"
 #include "Rock.h"
 
-#define WALL_LEFT 0
-#define WALL_RIGHT 127
+#define LEFT_WALL 0
+#define RIGHT_WALL 127
 #define FLOOR 85
 #define CEILING 0
 #define MAN_SPEED 1.5

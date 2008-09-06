@@ -77,11 +77,16 @@ void Game::draw() {
     }
 
 
+
 	int cpuTime = (TIMER1_DATA * 1000) / totalTime;
 	ulPrintf_xy(0, 0, "CPU: %02i.%i%%", cpuTime / 10, cpuTime % 10);
 
 	//End the drawing
 	ulEndDrawing();
+
+
+    ulDrawLine(LEFT_WALL*2, 0, LEFT_WALL*2, CEILING*2, RGB15(31,0,0));
+    ulDrawLine(RIGHT_WALL*2, 0, RIGHT_WALL*2, CEILING*2, RGB15(31,0,0));
 		
 	//Wait the VBlank (synchronize at 60 fps)
 	ulSyncFrame();

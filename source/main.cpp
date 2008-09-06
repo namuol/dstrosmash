@@ -20,6 +20,11 @@ int main() {
 	//Show some splash screens!
 	//ulShowSplashScreen(1);
 	//ulShowSplashScreen(2);
+    setGenericSound(	11025,	/* sample rate */
+						127,	/* volume */
+						64,		/* panning */
+						0 );	/* sound format*/
+
  
 	//Use bright pink as a transparent color
 	ulSetTransparentColor(RGB15(31, 0, 31));

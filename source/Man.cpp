@@ -27,8 +27,10 @@ void Man::update() {
     else if( ul_keys.held.right )
         x += MAN_SPEED;
 
-    x = ulMin(WALL_LEFT, x);
-    x = ulMax(WALL_RIGHT, x);
+    if(x < LEFT_WALL)
+        x = LEFT_WALL;
+    else if(RIGHT(this) > RIGHT_WALL)
+        x = RIGHT_WALL - w + 1;
 
     if( ul_keys.pressed.A )
         shoot();
@@ -38,6 +40,7 @@ void Man::update() {
 
 void Man::shoot() {
     // Fire a shot!
-    if(game->shots.size() < MAX_SHOTS)
+    if(game->shots.size() < MAX_SHOTS) {
         game->shots.push_back( new Shot(game) );
+    }
 }

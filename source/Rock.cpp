@@ -10,6 +10,7 @@ using namespace std;
 #include "Shot.h"
 #include "Rock.h"
 #include "lg1.h"
+#include "smash.h"
 
 UL_IMAGE *Rock::images[NUM_ROCK_IMAGES];
 
@@ -24,7 +25,7 @@ const int Rock::ROCK_COLORS[] = {
 
 //Constructor
 Rock::Rock(Game *game, Rock *parent, int num) 
-: Sprite(game, images[RAND(NUM_ROCK_IMAGES)], RAND(WALL_RIGHT), 0)
+: Sprite(game, images[RAND(NUM_ROCK_IMAGES)], RAND(RIGHT_WALL), 0)
 {
     if ( images[0] == NULL ) {
         images[0] = ulLoadImageFilePNG((const char*)sm1, (int)sm1_size, UL_IN_VRAM, UL_PF_PAL4);
@@ -66,6 +67,7 @@ void Rock::update() {
         if(COLTEST(this, (*s)) ) {
             delete (*s);
             delete this;
+            playGenericSound((void *)smash, (u32)smash_size);
             return;
         }
     }
