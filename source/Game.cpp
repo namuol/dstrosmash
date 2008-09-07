@@ -12,17 +12,20 @@ using namespace std;
 UL_IMAGE * Game::bgImg = NULL;
 
 const int Game::INTV_PALETTE[] = {
-    RGB15(31,31,31),
-    RGB15(31,28,10),
-    RGB15(0,20,10),
-    RGB15(10,13,0),
-    RGB15(24,25,21),
-    RGB15(31,7,2),
-    RGB15(0,5,31),
-    RGB15(0,0,0)
+    RGB15(31,31,31), // White
+    RGB15(31,28,10), // 
+    RGB15(0,20,10),  // 
+    RGB15(10,13,0),  // 
+    RGB15(24,25,21), // 
+    RGB15(31,7,2),   // Red 
+    RGB15(0,5,31),   // Blue 
+    RGB15(0,0,0)     // Black
 };
 
 Game::Game() {
+    score = 0;
+    peak_score = 0;
+    multiplyer = 1;
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
     theMan = new Man(this, 32, FLOOR-MAN_HEIGHT);	
 }
@@ -53,6 +56,20 @@ void Game::update() {
     for(r = tmpRocks.begin(); r != tmpRocks.end(); ++r ) {
         (*r)->update();
     }
+
+    // Update each explosion.
+    list<Explosion *>::iterator e;
+    list<Explosion *> tmpExplosions( explosions ); 
+    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
+        (*e)->update();
+    }
+
+}
+
+void Game::updateScore(int amount) {
+    score += amount * multiplyer;
+    if( score > peak_score )
+        peak_score = score;
 }
 
 void Game::draw() {
@@ -76,10 +93,15 @@ void Game::draw() {
         (*r)->draw();
     }
 
+    list<Explosion *>::iterator e;
+    for(e = explosions.begin(); e != explosions.end(); ++e ) {
+        (*e)->draw();
+    }
 
 
 	int cpuTime = (TIMER1_DATA * 1000) / totalTime;
 	ulPrintf_xy(0, 0, "CPU: %02i.%i%%", cpuTime / 10, cpuTime % 10);
+	ulPrintf_xy(0, FLOOR*2, "%i          %ix", score, multiplyer);
 
 	//End the drawing
 	ulEndDrawing();
@@ -105,7 +127,7 @@ void Game::mainLoop() {
 	    TIMER1_CR = TIMER_DIV_64 | TIMER_ENABLE;
 
         if(RAND(30)==0)
-            rocks.push_back(new Rock(this, 0, 0));
+            rocks.push_back(new Rock(this, (Rock *)0, 0, RAND(NUM_ROCK_IMAGES) ));
         update();
         draw();
 		totalTime = TIMER1_DATA;

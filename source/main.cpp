@@ -20,7 +20,7 @@ int main() {
 	//Show some splash screens!
 	//ulShowSplashScreen(1);
 	//ulShowSplashScreen(2);
-    setGenericSound(	11025,	/* sample rate */
+    setGenericSound(	22050,	/* sample rate */
 						127,	/* volume */
 						64,		/* panning */
 						0 );	/* sound format*/
