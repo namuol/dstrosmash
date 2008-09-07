@@ -17,12 +17,12 @@ using namespace std;
 UL_IMAGE *Rock::images[NUM_ROCK_IMAGES];
 
 const int Rock::ROCK_COLORS[] = {
-    Game::INTV_PALETTE[1],
-    Game::INTV_PALETTE[2],
-    Game::INTV_PALETTE[3],
-    Game::INTV_PALETTE[4],
-    Game::INTV_PALETTE[5],
-    Game::INTV_PALETTE[6]
+    LIGHT_BLUE,
+    OFF_WHITE,
+    YELLOW,
+    ORANGE,
+    PINK,
+    GREEN
 };
 
 // Constructor
@@ -41,6 +41,7 @@ Rock::Rock(Game *game, Rock *parent, int num, int rock_num)
         images[5] = ulLoadImageFilePNG((const char*)lg3, (int)lg3_size, UL_IN_VRAM, UL_PF_PAL4);
     }
     this->rock_num = rock_num;
+    is_big = rock_num >= 3;
 
     if( parent != NULL ) {
         if( num == 1 ) {
@@ -108,19 +109,28 @@ void Rock::kill(RockDeathType deathType) {
     int rockNum;
     switch( deathType ) {
         case LAND:
+            if( is_big )
+                game->updateScore(BIG_ROCK_LAND_SCORE);
+            else
+                game->updateScore(SMALL_ROCK_LAND_SCORE);
         case OUT_OF_BOUNDS:
             delete this;
             break;
 
         case SHOT:
-            if( rock_num >= 3 && RAND(4) ) {
+            if( is_big && (float)rand()/RAND_MAX < ROCK_SPLIT_PROBABILITY ){
                 rockNum = RAND(NUM_ROCK_IMAGES/2);
                 game->rocks.push_back(new Rock(game, this, 0, rockNum) );
                 game->rocks.push_back(new Rock(game, this, 1, rockNum) );
             } else {
-        case EXPLODED:
+        case EXPLODED: // Yes, you can put case GOTOs inside conditional blocks. 
                 game->explosions.push_back(new Explosion(game, x, y) );
             }
+            if( is_big )
+                game->updateScore(BIG_ROCK_SHOT_SCORE);
+            else
+                game->updateScore(SMALL_ROCK_SHOT_SCORE);
+
             playGenericSound((void *)smash, (u32)smash_size);
             delete this;
             break;

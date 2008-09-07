@@ -35,7 +35,24 @@
 #define X5_LEVEL 50000
 #define X6_LEVEL 100000
 
+#define NUM_COLORS 16
 
+#define BLACK RGB15(0,0,0)
+#define BLUE RGB15(0,5,31)
+#define RED RGB15(31,7,2)
+#define OFF_WHITE RGB15(25,25,21)
+#define DARK_GREEN RGB15(7,13,7)
+#define GREEN RGB15(0,20,10)
+#define YELLOW RGB15(31,29,10)
+#define WHITE RGB15(31,31,31)
+#define GRAY RGB15(23,21,25)
+#define CYAN RGB15(4,22,31)
+#define ORANGE RGB15(31,22,3)
+#define BROWN RGB15(10,13,0)
+#define PINK RGB15(31,9,10)
+#define LIGHT_BLUE RGB15(20,18,31)
+#define YELLOW_GREEN RGB15(14,25,16)
+#define PURPLE RGB15(22,3,11)
 
 class Game {
 private:
@@ -48,7 +65,7 @@ public:
     int multiplyer;
     int score;
     int peak_score;
-    static const int INTV_PALETTE[];
+
     Man *theMan;
     std::list<Shot *> shots;
     std::list<Rock *> rocks;

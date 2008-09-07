@@ -11,17 +11,6 @@ using namespace std;
 
 UL_IMAGE * Game::bgImg = NULL;
 
-const int Game::INTV_PALETTE[] = {
-    RGB15(31,31,31), // White
-    RGB15(31,28,10), // 
-    RGB15(0,20,10),  // 
-    RGB15(10,13,0),  // 
-    RGB15(24,25,21), // 
-    RGB15(31,7,2),   // Red 
-    RGB15(0,5,31),   // Blue 
-    RGB15(0,0,0)     // Black
-};
-
 Game::Game() {
     score = 0;
     peak_score = 0;
@@ -64,6 +53,19 @@ void Game::update() {
         (*e)->update();
     }
 
+    if(score >= X6_LEVEL ) {
+        multiplyer = 6;
+    } else if( score >= X5_LEVEL ) {
+        multiplyer = 5;
+    } else if( score >= X4_LEVEL ) {
+        multiplyer = 4;
+    } else if( score >= X3_LEVEL ) {
+        multiplyer = 3;
+    } else if( score >= X2_LEVEL ) {
+        multiplyer = 2;
+    } else {
+        multiplyer = 1;
+    }
 }
 
 void Game::updateScore(int amount) {

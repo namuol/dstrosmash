@@ -16,6 +16,7 @@
 #define MIN_ROCK_XSPEED 0
 #define MAX_ROCK_XSPEED 0.25
 #define ROCK_SPLIT_SPEED 0.25
+#define ROCK_SPLIT_PROBABILITY 0.75
 
 enum RockDeathType { 
     LAND, // When the rock hits the ground
@@ -26,6 +27,7 @@ enum RockDeathType {
 
 class Rock : public Sprite {
 private:
+    bool is_big;
 
 public:
     int color;

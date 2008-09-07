@@ -6,8 +6,11 @@
 #include "util.h"
 
 #include "Game.h"
+#include "time.h"
 
 int main() {
+
+    srand(time(NULL));
 
 	//Initialize uLibrary
 	ulInit(UL_INIT_ALL);
