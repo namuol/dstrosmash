@@ -2,6 +2,7 @@
 #define _ROCK_H
 
 #include <ulib/ulib.h>
+#include "Game.h"
 
 #define NUM_ROCK_IMAGES 6
 #include "sm1.h"
@@ -18,16 +19,10 @@
 #define ROCK_SPLIT_SPEED 0.25
 #define ROCK_SPLIT_PROBABILITY 0.75
 
-enum RockDeathType { 
-    LAND, // When the rock hits the ground
-    SHOT, // When the rock is shot
-    EXPLODED, // When the rock is near an explosion
-    OUT_OF_BOUNDS // When the rock goes off the screen (doesn't affect the score)
-};
-
 class Rock : public Sprite {
 private:
     bool is_big;
+    bool flipped;
 
 public:
     int color;
@@ -40,7 +35,7 @@ public:
    
     void update();
     void draw();
-    void kill(RockDeathType deathType);
+    void kill(DeathType deathType);
 };
 
 #endif

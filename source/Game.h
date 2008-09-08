@@ -9,8 +9,9 @@
 
 #include "Man.h"
 #include "Shot.h"
-#include "Explosion.h"
 #include "Rock.h"
+#include "Explosion.h"
+#include "Spinner.h"
 
 #define LEFT_WALL 0
 #define RIGHT_WALL 127
@@ -27,13 +28,10 @@
 #define UFO_SHOT_SCORE 100
 #define BIG_ROCK_LAND_SCORE -5
 #define SMALL_ROCK_LAND_SCORE -10
+#define BIG_SPINNER_LAND_SCORE 0 // Death is enough of a panalty.
+#define SMALL_SPINNER_LAND_SCORE 0 // Death is enough of a penalty.
 #define DEATH_SCORE -100 
 
-#define X2_LEVEL 1000
-#define X3_LEVEL 5000
-#define X4_LEVEL 20000
-#define X5_LEVEL 50000
-#define X6_LEVEL 100000
 
 #define NUM_COLORS 16
 
@@ -54,12 +52,25 @@
 #define YELLOW_GREEN RGB15(14,25,16)
 #define PURPLE RGB15(22,3,11)
 
+#define X2_LEVEL_SCORE 1000
+#define X3_LEVEL_SCORE 5000
+#define X4_LEVEL_SCORE 20000
+#define X5_LEVEL_SCORE 50000
+#define X6_LEVEL_SCORE 100000
+
+#define STARTING_LIVES 4
+
+#define DEATH_FRAME_COUNT 40
+#define DEATH_SHAKE_AMT 10.0
+
 class Game {
 private:
+    static const int LEVEL_COLORS[];
     int totalTime;
 	static UL_IMAGE *bgImg;
     void update();
     void draw();
+    int lives;
 
 public:
     int multiplyer;
@@ -67,14 +78,16 @@ public:
     int peak_score;
 
     Man *theMan;
-    std::list<Shot *> shots;
-    std::list<Rock *> rocks;
-    std::list<Explosion *> explosions;
+    std::list<Shot *> *shots;
+    std::list<Rock *> *rocks;
+    std::list<Explosion *> *explosions;
+    std::list<Spinner *> *spinners;
     Game();
     ~Game();
    
     void mainLoop();
     void updateScore(int amount);
+    void death();
 };
 
 

@@ -9,6 +9,15 @@
 #include <list>
 using namespace std;
 
+const int Game::LEVEL_COLORS[] = {
+    BLACK,
+    BLUE,
+    PURPLE,
+    CYAN,
+    GRAY,
+    BLACK
+};
+
 UL_IMAGE * Game::bgImg = NULL;
 
 Game::Game() {
@@ -17,6 +26,11 @@ Game::Game() {
     multiplyer = 1;
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
     theMan = new Man(this, 32, FLOOR-MAN_HEIGHT);	
+
+    shots = new list<Shot *>;
+    rocks = new list<Rock *>;
+    explosions = new list<Explosion *>;
+    spinners = new list<Spinner *>;
 }
 
 Game::~Game() {
@@ -30,38 +44,45 @@ void Game::update() {
 
     theMan->update();
 
-    // Update each shot.
     //  We need to use a temporary list to prevent invalidating the 
     //  iterator when deleting a shot that goes off the screen or collides with something.
+    // Update each shot.
     list<Shot *>::iterator s;
-    list<Shot *> tmpShots( shots ); 
+    list<Shot *> tmpShots( *shots ); 
     for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
         (*s)->update();
     }
 
     // Update each rock.
     list<Rock *>::iterator r;
-    list<Rock *> tmpRocks( rocks ); 
+    list<Rock *> tmpRocks( *rocks ); 
     for(r = tmpRocks.begin(); r != tmpRocks.end(); ++r ) {
         (*r)->update();
     }
 
+    // Update each spinner.
+    list<Spinner *>::iterator sp;
+    list<Spinner *> tmpSpinners( *spinners ); 
+    for(sp = tmpSpinners.begin(); sp != tmpSpinners.end(); ++sp ) {
+        (*sp)->update();
+    }
+
     // Update each explosion.
     list<Explosion *>::iterator e;
-    list<Explosion *> tmpExplosions( explosions ); 
+    list<Explosion *> tmpExplosions( *explosions ); 
     for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
         (*e)->update();
     }
 
-    if(score >= X6_LEVEL ) {
+    if(score >= X6_LEVEL_SCORE ) {
         multiplyer = 6;
-    } else if( score >= X5_LEVEL ) {
+    } else if( score >= X5_LEVEL_SCORE ) {
         multiplyer = 5;
-    } else if( score >= X4_LEVEL ) {
+    } else if( score >= X4_LEVEL_SCORE ) {
         multiplyer = 4;
-    } else if( score >= X3_LEVEL ) {
+    } else if( score >= X3_LEVEL_SCORE ) {
         multiplyer = 3;
-    } else if( score >= X2_LEVEL ) {
+    } else if( score >= X2_LEVEL_SCORE ) {
         multiplyer = 2;
     } else {
         multiplyer = 1;
@@ -78,6 +99,7 @@ void Game::draw() {
     ulStartDrawing2D();
 
     // First draw background
+    ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, LEVEL_COLORS[multiplyer-1]);
     ulDrawImageXY( bgImg, 0, 0 );
 
     // Then draw the man
@@ -85,18 +107,25 @@ void Game::draw() {
 
     // Draw all the shots:
     std::list<Shot *>::iterator s;
-    for(s = shots.begin(); s != shots.end(); ++s ) {
+    for(s = shots->begin(); s != shots->end(); ++s ) {
         (*s)->draw();
     }
     
     // Draw all the rocks:
     std::list<Rock *>::iterator r;
-    for(r = rocks.begin(); r != rocks.end(); ++r ) {
+    for(r = rocks->begin(); r != rocks->end(); ++r ) {
         (*r)->draw();
     }
 
+    // Draw all the spinners:
+    std::list<Spinner *>::iterator sp;
+    for(sp = spinners->begin(); sp != spinners->end(); ++sp ) {
+        (*sp)->draw();
+    }
+
+    // Draw all the explosions:
     list<Explosion *>::iterator e;
-    for(e = explosions.begin(); e != explosions.end(); ++e ) {
+    for(e = explosions->begin(); e != explosions->end(); ++e ) {
         (*e)->draw();
     }
 
@@ -116,6 +145,43 @@ void Game::draw() {
 	ulSyncFrame();
 }
 
+void Game::death() {
+    // This gets called each time the player dies. It should be called within
+    // the update() call in mainLoop.
+    //  It enters it's own loop to display the death animation and 
+    //  then returns to the mainLoop in a natural fashion.
+
+    list<Shot *> *old_shots = shots;
+    list<Explosion *> *old_explosions = explosions;
+    list<Rock *> *old_rocks = rocks;
+    list<Spinner *> *old_spinners = spinners;
+    delete old_shots;
+    delete old_explosions;
+    delete old_rocks;
+    delete old_spinners;
+    shots = new list<Shot *>;
+    rocks = new list<Rock *>;
+    explosions = new list<Explosion *>;
+    spinners = new list<Spinner *>;
+
+    updateScore(DEATH_SCORE);
+
+    int frameCount = 0;
+    while(frameCount < DEATH_FRAME_COUNT) {
+        ulStartDrawing2D();
+        SHAKE(DEATH_SHAKE_AMT*(float)(DEATH_FRAME_COUNT-frameCount)/DEATH_FRAME_COUNT);
+
+        // First draw background
+        ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, RED);
+        ulDrawImageXY( bgImg, 0, 0 );
+
+        ulEndDrawing();
+        ulSyncFrame();
+        ++frameCount;
+    }
+    ulResetScreenView();
+}
+
 void Game::mainLoop() {
 
     //To avoid a divide by zero the first time
@@ -128,10 +194,14 @@ void Game::mainLoop() {
 	    TIMER1_DATA = 0;
 	    TIMER1_CR = TIMER_DIV_64 | TIMER_ENABLE;
 
-        if(RAND(30)==0)
-            rocks.push_back(new Rock(this, (Rock *)0, 0, RAND(NUM_ROCK_IMAGES) ));
+        if(RAND(50/multiplyer)==0)
+            rocks->push_back(new Rock(this, (Rock *)0, 0, RAND(NUM_ROCK_IMAGES) ));
+        if(RAND(200/multiplyer)==0)
+            spinners->push_back(new Spinner(this));
         update();
         draw();
 		totalTime = TIMER1_DATA;
 	}
 }
+
+

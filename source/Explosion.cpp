@@ -8,14 +8,18 @@ UL_IMAGE *Explosion::loaded_img = NULL;
 
 Explosion::Explosion(Game *game, float x, float y)
 : Sprite(game, 
-         loaded_img==NULL ? loaded_img=ulLoadImageFilePNG((const char*)explosion, (int)explosion_size, UL_IN_VRAM, UL_PF_PAL4) : loaded_img,
-         x, y )
+         x, y,
+         EXPLOSION_FRAME_WIDTH/2,
+         EXPLOSION_FRAME_HEIGHT/2 )
 {
+    if( loaded_img==NULL ) 
+        loaded_img=ulLoadImageFilePNG((const char*)explosion, (int)explosion_size, UL_IN_VRAM, UL_PF_PAL4);
+    img = loaded_img;
     frame_count = 0;
 }
 
 Explosion::~Explosion() {
-    game->explosions.remove(this);
+    game->explosions->remove(this);
 }
 
 void Explosion::update() {

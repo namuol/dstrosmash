@@ -1,9 +1,13 @@
 #include "Man.h"
 #include "Sprite.h"
 #include "Game.h"
+#include "Rock.h"
+#include "Explosion.h"
 
 #include "math.h"
 #include <ulib/ulib.h>
+#include <list>
+using namespace std;
 
 #include "Shot.h"
 
@@ -35,12 +39,31 @@ void Man::update() {
     if( ul_keys.pressed.A )
         shoot();
 
+    list<Rock *>::iterator r;
+    list<Rock *> tmpRocks( *game->rocks ); 
+    for(r = tmpRocks.begin(); r != tmpRocks.end(); ++r ) {
+        if(COLTEST(this, (*r)) ) {
+            game->death();
+            return;
+        }
+    }
+
+    list<Explosion *>::iterator e;
+    list<Explosion *> tmpExplosions( *game->explosions ); 
+    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
+        if(COLTEST(this, (*e)) ) {
+            game->death();
+            return;
+        }
+    }
+
+
     Sprite::update();
 }
 
 void Man::shoot() {
     // Fire a shot!
-    if(game->shots.size() < MAX_SHOTS) {
-        game->shots.push_back( new Shot(game) );
+    if(game->shots->size() < MAX_SHOTS) {
+        game->shots->push_back( new Shot(game) );
     }
 }

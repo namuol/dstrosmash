@@ -12,7 +12,7 @@ Shot::Shot(Game *game)
 
 //Destructor
 Shot::~Shot() {
-    game->shots.remove(this);
+    game->shots->remove(this);
 }
 
 void Shot::update() {

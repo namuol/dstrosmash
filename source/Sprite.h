@@ -7,9 +7,18 @@
 #define TOP(s) ((s)->y)
 #define LEFT(s) ((s)->x)
 #define RIGHT(s) ((s)->x+(s)->w)
+#define MIDX(s) ((s)->x+(s)->w/2)
+#define MIDY(s) ((s)->x+(s)->w/2)
 
 // Who's ever heard of a safe *and* useful macro, anyway?
 #define COLTEST(s1, s2) !(BOTTOM(s1) < TOP(s2) || TOP(s1) > BOTTOM(s2) || RIGHT(s1) < LEFT(s2) || LEFT(s1) > RIGHT(s2))
+
+enum DeathType { 
+    LAND, // When the rock hits the ground
+    SHOT, // When the rock is shot
+    EXPLODED, // When the rock is near an explosion
+    OUT_OF_BOUNDS // When the rock goes off the screen (doesn't affect the score)
+};
 
 class Game;
 
