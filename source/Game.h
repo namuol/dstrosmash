@@ -1,24 +1,11 @@
 #ifndef _GAME_H
 #define _GAME_H
-
-#include <ctime>
-#include <cstdlib>
-#include <list>
-
-#include "util.h"
-
-#include "Man.h"
-#include "Shot.h"
-#include "Rock.h"
-#include "Explosion.h"
-#include "Spinner.h"
-
 #define LEFT_WALL 0
 #define RIGHT_WALL 127
 #define FLOOR 85
 #define CEILING 0
 #define MAN_SPEED 2
-#define MAX_SHOTS 2
+#define MAX_SHOTS 5
 
 #define BIG_ROCK_SHOT_SCORE 10
 #define SMALL_ROCK_SHOT_SCORE 20
@@ -52,6 +39,27 @@
 #define YELLOW_GREEN RGB15(14,25,16)
 #define PURPLE RGB15(22,3,11)
 
+// Color flags; useful for limiting
+//  what colors certain sprites can be.
+// OR them together to choose colors,
+//  AND with them to test.
+#define BLACK_EN        1
+#define BLUE_EN         2
+#define RED_EN          4
+#define OFF_WHITE_EN    8
+#define DARK_GREEN_EN   16
+#define GREEN_EN        32
+#define YELLOW_EN       64
+#define WHITE_EN        128
+#define GRAY_EN         256
+#define CYAN_EN         512
+#define ORANGE_EN       1024
+#define BROWN_EN        2048
+#define PINK_EN         4096
+#define LIGHT_BLUE_EN   8192
+#define YELLOW_GREEN_EN 16384
+#define PURPLE_EN       32768
+
 #define X2_LEVEL_SCORE 1000
 #define X3_LEVEL_SCORE 5000
 #define X4_LEVEL_SCORE 20000
@@ -59,9 +67,27 @@
 #define X6_LEVEL_SCORE 100000
 
 #define STARTING_LIVES 4
+#define ONE_UP_SCORE 3000 // Every one of these gets you +1 life.
 
-#define DEATH_FRAME_COUNT 40
+#define DEATH_FRAME_COUNT 80
 #define DEATH_SHAKE_AMT 10.0
+#define SHAKE_MAX 8.0
+
+#define SHAKE_DECREASE 0.05
+#define ROCK_LAND_SHAKE 2.0
+
+#include <ctime>
+#include <cstdlib>
+#include <list>
+
+#include "util.h"
+
+#include "Man.h"
+#include "Shot.h"
+#include "Rock.h"
+#include "Explosion.h"
+#include "Spinner.h"
+
 
 class Game {
 private:
@@ -72,10 +98,14 @@ private:
     void draw();
     int lives;
 
+    bool paused;
+
 public:
+    float shake_amt;
     int multiplyer;
     int score;
     int peak_score;
+    int one_up_total;
 
     Man *theMan;
     std::list<Shot *> *shots;

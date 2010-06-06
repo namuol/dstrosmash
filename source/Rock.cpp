@@ -18,13 +18,15 @@ using namespace std;
 // NOTE: The first half of the rock images MUST be small rocks.
 UL_IMAGE *Rock::images[NUM_ROCK_IMAGES];
 
-const int Rock::ROCK_COLORS[] = {
-    LIGHT_BLUE,
-    OFF_WHITE,
-    YELLOW,
-    ORANGE,
-    PINK,
-    GREEN
+// Each int is a series of color flags ORd 
+//  together; the values are defined in Game.h
+const int *Rock::ROCK_COLORS[] = {
+    X1_ROCK_COLORS,
+    X2_ROCK_COLORS,
+    X3_ROCK_COLORS,
+    X4_ROCK_COLORS,
+    X5_ROCK_COLORS,
+    X6_ROCK_COLORS
 };
 
 // Constructor
@@ -56,7 +58,7 @@ Rock::Rock(Game *game, Rock *parent, int num, int rock_num)
         vy = parent->vy;
         color = parent->color;
     } else {
-        color = ROCK_COLORS[RAND(6)];
+        color = ROCK_COLORS[game->multiplyer-1][RAND(ROCK_COLORS[game->multiplyer-1][0])+1];
 
         vx = ulMax(MIN_ROCK_XSPEED, (float)rand()/RAND_MAX * MAX_ROCK_XSPEED);
         vy = ulMax(MIN_ROCK_YSPEED, (float)rand()/RAND_MAX * MAX_ROCK_YSPEED);
@@ -102,7 +104,6 @@ void Rock::update() {
         }
     }
 
-
     x += vx;
     y += vy;
     
@@ -123,6 +124,7 @@ void Rock::kill(DeathType deathType) {
                 game->updateScore(BIG_ROCK_LAND_SCORE);
             else
                 game->updateScore(SMALL_ROCK_LAND_SCORE);
+            game->shake_amt += ROCK_LAND_SHAKE;
         case OUT_OF_BOUNDS:
             delete this;
             break;
@@ -141,7 +143,7 @@ void Rock::kill(DeathType deathType) {
             else
                 game->updateScore(SMALL_ROCK_SHOT_SCORE);
 
-            playGenericSound((void *)smash, (u32)smash_size);
+            //playGenericSound((void *)smash, (u32)smash_size);
             delete this;
             break;
 

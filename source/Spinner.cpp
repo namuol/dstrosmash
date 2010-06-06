@@ -84,7 +84,8 @@ void Spinner::kill(DeathType deathType) {
                 game->updateScore(BIG_SPINNER_LAND_SCORE);
             else
                 game->updateScore(SMALL_SPINNER_LAND_SCORE);
-            game->death();
+            game->death(); // death() will call delete on it for us!
+            break;
         case OUT_OF_BOUNDS:
             delete this;
             break;
@@ -97,7 +98,7 @@ void Spinner::kill(DeathType deathType) {
             else
                 game->updateScore(SMALL_SPINNER_SHOT_SCORE);
 
-            playGenericSound((void *)smash, (u32)smash_size);
+            //playGenericSound((void *)smash, (u32)smash_size);
             delete this;
             break;
 

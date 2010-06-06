@@ -33,7 +33,9 @@ void Explosion::update() {
 }
 
 void Explosion::draw() {
-    ulSetImageTileSize(img, 0, EXPLOSION_FRAME_HEIGHT*(frame_count/EXPLOSION_FRAME_LENGTH), EXPLOSION_FRAME_WIDTH, EXPLOSION_FRAME_HEIGHT); 
+    ulSetImageTileSize(img, 0,
+            EXPLOSION_FRAME_HEIGHT*(frame_count/EXPLOSION_FRAME_LENGTH),
+            EXPLOSION_FRAME_WIDTH, EXPLOSION_FRAME_HEIGHT); 
     ulSetImageTint(img, RGB15(31,0,0));
     Sprite::draw();
 }

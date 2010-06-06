@@ -15,8 +15,10 @@ using namespace std;
 
 //Constructor
 Man::Man(Game *game, float x, float y) 
-: Sprite( game, ulLoadImageFilePNG((const char*)man, (int)man_size, UL_IN_VRAM, UL_PF_PAL4), x, y ) // Call superclass Sprite constructor. 
-{
+// Call superclass Sprite constructor. 
+: Sprite( game, 
+        ulLoadImageFilePNG((const char*)man,(int)man_size,UL_IN_VRAM,UL_PF_PAL4),
+        x, y ) {
 }
 
 //Destructor
@@ -36,7 +38,7 @@ void Man::update() {
     else if(RIGHT(this) > RIGHT_WALL)
         x = RIGHT_WALL - w + 1;
 
-    if( ul_keys.pressed.A )
+    if( ul_keys.pressed.A || ul_keys.pressed.B )
         shoot();
 
     list<Rock *>::iterator r;
@@ -56,7 +58,6 @@ void Man::update() {
             return;
         }
     }
-
 
     Sprite::update();
 }
