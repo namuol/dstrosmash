@@ -71,9 +71,9 @@
 
 #define DEATH_FRAME_COUNT 80
 #define DEATH_SHAKE_AMT 10.0
-#define SHAKE_MAX 8.0
+#define SHAKE_MAX 5.0
 
-#define SHAKE_DECREASE 0.05
+#define SHAKE_DECREASE 0.1
 #define ROCK_LAND_SHAKE 2.0
 
 #include <ctime>
@@ -87,7 +87,6 @@
 #include "Rock.h"
 #include "Explosion.h"
 #include "Spinner.h"
-
 
 class Game {
 private:

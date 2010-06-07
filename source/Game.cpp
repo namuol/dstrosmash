@@ -125,11 +125,12 @@ void Game::updateScore(int amount) {
 void Game::draw() {
     ulStartDrawing2D();
 
-
     // First draw background
     ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, LEVEL_COLORS[multiplyer]);
+
     int cpuTime = (TIMER1_DATA * 1000) / totalTime;
     ulPrintf_xy(0, 0, "CPU: %02i.%i%% %f %f", cpuTime / 10, cpuTime % 10, SHAKE_MAX, shake_amt);
+
     if( lives >= 0 ) {
         if( shake_amt > 0.0 ) {
             SHAKE(MIN((int)shake_amt,(int)SHAKE_MAX));
@@ -253,7 +254,6 @@ void Game::mainLoop() {
 
     //To avoid a divide by zero the first time
 	totalTime = 1;
-
 
 	while(1) {
         //Initialize the timers to measure the framerate

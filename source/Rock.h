@@ -29,7 +29,6 @@ static int X1_ROCK_COLORS[] = {
     YELLOW
 };
 
-
 static int X2_ROCK_COLORS[] = {
     5,
     ORANGE,
