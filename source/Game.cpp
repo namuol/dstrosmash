@@ -3,6 +3,7 @@
  */
 #include "Game.h"
 #include "Man.h"
+#include "LevelRules.h"
 #include "main.h"
 #include "bg.h" // The background image
 
@@ -24,9 +25,16 @@ UL_IMAGE * Game::bgImg = NULL;
 
 Game::Game() {
     one_up_total = 0;
-    score = 0;
+    score = score_display = 5000;
     peak_score = 0;
     multiplyer = 1;
+    rules = &X1_RULES;
+
+    next_rock = RAND_RANGE(rules->min_rock_rest,rules->max_rock_rest);
+    next_spinner = RAND_RANGE(rules->min_spinner_rest,rules->max_spinner_rest);
+    next_missile = RAND_RANGE(rules->min_missile_rest,rules->max_missile_rest);
+    next_ufo = RAND_RANGE(rules->min_ufo_rest,rules->max_ufo_rest);
+
     shake_amt = 0.0;
     lives = STARTING_LIVES; 
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
@@ -36,7 +44,9 @@ Game::Game() {
     rocks = new list<Rock *>;
     explosions = new list<Explosion *>;
     spinners = new list<Spinner *>;
-
+    ufos = new list<UFO *>;
+    ufo_shots = new list<UFOShot *>;
+    
     paused = false;
 }
 
@@ -47,6 +57,8 @@ Game::~Game() {
     delete rocks;
     delete explosions;
     delete spinners;
+    delete ufos;
+    delete ufo_shots;
 }
 
 void Game::update() {
@@ -54,7 +66,10 @@ void Game::update() {
 	ulReadKeys(0);
 
     if(ul_keys.pressed.start)
-        paused = !paused;
+    {
+        //paused = !paused;
+        ufos->push_back(new UFO(this));
+    }
 
     if(paused)
         return;
@@ -84,6 +99,20 @@ void Game::update() {
         (*sp)->update();
     }
 
+    // Update each ufo.
+    list<UFO *>::iterator u;
+    list<UFO *> tmpUFOs( *ufos ); 
+    for(u = tmpUFOs.begin(); u != tmpUFOs.end(); ++u ) {
+        (*u)->update();
+    }
+
+    // Update each ufo_shot.
+    list<UFOShot *>::iterator us;
+    list<UFOShot *> tmpUFOShots( *ufo_shots ); 
+    for(us = tmpUFOShots.begin(); us != tmpUFOShots.end(); ++us ) {
+        (*us)->update();
+    }
+
     // Update each explosion.
     list<Explosion *>::iterator e;
     list<Explosion *> tmpExplosions( *explosions ); 
@@ -106,6 +135,41 @@ void Game::update() {
     }
     if( lives < 0 ) {
         multiplyer = 0;
+    }
+
+    switch(multiplyer)
+    {
+    case 1: rules = &X1_RULES; break;
+    case 2: rules = &X2_RULES; break;
+    case 3: rules = &X3_RULES; break;
+    case 4: rules = &X4_RULES; break;
+    case 5: rules = &X5_RULES; break;
+    case 6: rules = &X6_RULES; break;
+    default: rules = &X1_RULES; break;
+    }
+
+    if(next_rock <= 0 && rocks->size() < rules->max_rocks)
+    {
+        rocks->push_back(new Rock(this, (Rock *)NULL, 0, RAND(NUM_ROCK_IMAGES) ));
+        next_rock = RAND_RANGE(rules->min_rock_rest,rules->max_rock_rest);
+    }
+
+    if(next_spinner <= 0 && spinners->size() < rules->max_spinners)
+    {
+        spinners->push_back(new Spinner(this));
+        next_spinner = RAND_RANGE(rules->min_spinner_rest,rules->max_spinner_rest);
+    }
+
+    if(next_ufo <= 0 && ufos->size() < rules->max_ufos)
+    {
+        ufos->push_back(new UFO(this));
+        next_ufo = RAND_RANGE(rules->min_ufo_rest,rules->max_ufo_rest);
+    }
+
+    if( ufos->size() <= 0 ) {
+        next_rock -= FRAME_LENGTH_MS;
+        next_spinner -= FRAME_LENGTH_MS;
+        next_ufo -= FRAME_LENGTH_MS;
     }
 }
 
@@ -161,14 +225,26 @@ void Game::draw() {
             (*sp)->draw();
         }
 
+        // Draw all the ufos:
+        std::list<UFO *>::iterator u;
+        for(u = ufos->begin(); u != ufos->end(); ++u ) {
+            (*u)->draw();
+        }
+
+        // Draw all the ufo_shots:
+        std::list<UFOShot *>::iterator us;
+        for(us = ufo_shots->begin(); us != ufo_shots->end(); ++us ) {
+            (*us)->draw();
+        }
+
         // Draw all the explosions:
         list<Explosion *>::iterator e;
         for(e = explosions->begin(); e != explosions->end(); ++e ) {
             (*e)->draw();
         }
 
-
-        ulPrintf_xy(0, FLOOR*2+7, "%i          %ix | Lives: %i", score, multiplyer, lives);
+        score_display += ((score - score_display)/5.0)+0.1;
+        ulPrintf_xy(0, FLOOR*2+7, "%i          %ix | Lives: %i", (int)score_display, multiplyer, lives);
     } else {
         ulDrawImageXY( bgImg, 0, 0 );
         ulPrintf_xy(RIGHT_WALL-30, FLOOR, "GAME OVER");
@@ -261,14 +337,12 @@ void Game::mainLoop() {
 	    TIMER1_DATA = 0;
 	    TIMER1_CR = TIMER_DIV_64 | TIMER_ENABLE;
 
-        if(RAND(50/multiplyer)==0)
-            rocks->push_back(new Rock(this, (Rock *)0, 0, RAND(NUM_ROCK_IMAGES) ));
-        if(RAND(200/multiplyer)==0)
-            spinners->push_back(new Spinner(this));
         update();
         draw();
 		totalTime = TIMER1_DATA;
 	}
 }
 
-
+const LevelRules* Game::getRules() const {
+    return rules;
+}

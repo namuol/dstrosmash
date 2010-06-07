@@ -8,7 +8,7 @@ UL_IMAGE *Explosion::loaded_img = NULL;
 
 Explosion::Explosion(Game *game, float x, float y)
 : Sprite(game, 
-         x, y,
+         x-EXPLOSION_FRAME_WIDTH/4, y-EXPLOSION_FRAME_HEIGHT/4,
          EXPLOSION_FRAME_WIDTH/2,
          EXPLOSION_FRAME_HEIGHT/2 )
 {

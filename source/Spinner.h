@@ -17,8 +17,11 @@ private:
     bool flipped;
 
 public:
+    static UL_IMAGE* loaded_img_big;
     float vx, vy;
-    static UL_IMAGE *loaded_img;
+    static UL_IMAGE* loaded_img;
+    static void loadImages();
+
     Spinner(Game *game);
     ~Spinner();
    

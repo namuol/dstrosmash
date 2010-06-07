@@ -33,6 +33,10 @@ int main() {
 	ulSetTransparentColor(RGB15(31, 0, 31));
 
     Game game;
+    Rock::loadImages();
+    Spinner::loadImages();
+    UFO::loadImages();
+    UFOShot::loadImages();
     game.mainLoop();
 
 	//Program end - should never get there

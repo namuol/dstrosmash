@@ -75,6 +75,7 @@ public:
     float vx, vy;
     int rock_num;
     static UL_IMAGE *images[NUM_ROCK_IMAGES];
+    static void loadImages();
     Rock(Game *game, Rock *parent, int num, int rock_num);
     ~Rock();
    

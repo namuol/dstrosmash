@@ -2,6 +2,7 @@
 #include "Spinner.h"
 #include "Game.h"
 #include "spinner.h"
+#include "spinner_big.h"
 #include "smash.h"
 
 #include <ulib/ulib.h>
@@ -10,20 +11,30 @@
 using namespace std;
 
 UL_IMAGE *Spinner::loaded_img = NULL;
+UL_IMAGE *Spinner::loaded_img_big = NULL;
 
 Spinner::Spinner(Game *game)
 : Sprite(game, 
          RAND(RIGHT_WALL), 
-         0,
-         SPINNER_FRAME_WIDTH/2,
-         SPINNER_FRAME_HEIGHT/2 )
+         0,0,0)
 {
-    if( loaded_img==NULL ) 
-        loaded_img=ulLoadImageFilePNG((const char*)spinner, (int)spinner_size, UL_IN_VRAM, UL_PF_PAL4);
-    img = loaded_img;
+    is_big = RAND(3)==0;
+    if(is_big)
+        img = loaded_img_big;
+    else
+        img = loaded_img;
+    if(is_big) {
+       w = SPINNER_FRAME_WIDTH;
+       h = SPINNER_FRAME_HEIGHT;
+    }
+    else
+    {
+       w = SPINNER_FRAME_WIDTH/2;
+       h = SPINNER_FRAME_HEIGHT/2;
+    }
 
-    vx = ulMax(MIN_SPINNER_XSPEED, (float)rand()/RAND_MAX * MAX_SPINNER_XSPEED);
-    vy = ulMax(MIN_SPINNER_YSPEED, (float)rand()/RAND_MAX * MAX_SPINNER_YSPEED);
+    vx = ulMax(MIN_SPINNER_XSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_XSPEED);
+    vy = ulMax(MIN_SPINNER_YSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_YSPEED);
     vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
     flipped = vx < 0;
 }
@@ -72,7 +83,8 @@ void Spinner::update() {
 }
 
 void Spinner::draw() {
-    ulSetImageTileSize(img, 0, SPINNER_FRAME_HEIGHT*((imgy/9)%SPINNER_FRAME_COUNT), SPINNER_FRAME_WIDTH, SPINNER_FRAME_HEIGHT); 
+    ulSetImageTileSize(img, 0, (SPINNER_FRAME_HEIGHT*(is_big?2:1))*((imgy/9)%SPINNER_FRAME_COUNT),
+                       (SPINNER_FRAME_WIDTH*(is_big?2:1)), (SPINNER_FRAME_HEIGHT*(is_big?2:1))); 
     ulMirrorImageH(img, flipped);
     Sprite::draw();
 }
@@ -92,7 +104,7 @@ void Spinner::kill(DeathType deathType) {
 
         case SHOT:
         case EXPLODED:
-            game->explosions->push_back(new Explosion(game, x, y) );
+            game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
             if( is_big )
                 game->updateScore(BIG_SPINNER_SHOT_SCORE);
             else
@@ -105,4 +117,11 @@ void Spinner::kill(DeathType deathType) {
         default:
             ;
     }
+}
+
+void Spinner::loadImages() {
+    if( loaded_img==NULL ) 
+        loaded_img=ulLoadImageFilePNG((const char*)spinner, (int)spinner_size, UL_IN_VRAM, UL_PF_PAL4);
+    if( loaded_img_big==NULL ) 
+        loaded_img_big=ulLoadImageFilePNG((const char*)spinner_big, (int)spinner_big_size, UL_IN_VRAM, UL_PF_PAL4);
 }

@@ -36,14 +36,6 @@ Rock::Rock(Game *game, Rock *parent, int num, int rock_num)
          parent ? parent->x + (parent->img->sizeX/4) - images[rock_num]->sizeX/4 : RAND(RIGHT_WALL), 
          parent ? parent->y : 0 )
 {
-    if ( images[0] == NULL ) {
-        images[0] = ulLoadImageFilePNG((const char*)sm1, (int)sm1_size, UL_IN_VRAM, UL_PF_PAL4);
-        images[1] = ulLoadImageFilePNG((const char*)sm2, (int)sm2_size, UL_IN_VRAM, UL_PF_PAL4);
-        images[2] = ulLoadImageFilePNG((const char*)sm3, (int)sm3_size, UL_IN_VRAM, UL_PF_PAL4);
-        images[3] = ulLoadImageFilePNG((const char*)lg1, (int)lg1_size, UL_IN_VRAM, UL_PF_PAL4);
-        images[4] = ulLoadImageFilePNG((const char*)lg2, (int)lg2_size, UL_IN_VRAM, UL_PF_PAL4);
-        images[5] = ulLoadImageFilePNG((const char*)lg3, (int)lg3_size, UL_IN_VRAM, UL_PF_PAL4);
-    }
     this->rock_num = rock_num;
     is_big = rock_num >= 3;
 
@@ -136,7 +128,7 @@ void Rock::kill(DeathType deathType) {
                 game->rocks->push_back(new Rock(game, this, 1, rockNum) );
             } else {
         case EXPLODED: // Yes, you can put case GOTOs inside conditional blocks. 
-                game->explosions->push_back(new Explosion(game, x, y) );
+                game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
             }
             if( is_big )
                 game->updateScore(BIG_ROCK_SHOT_SCORE);
@@ -149,5 +141,16 @@ void Rock::kill(DeathType deathType) {
 
         default:
             ;
+    }
+}
+
+void Rock::loadImages() {
+    if ( images[0] == NULL ) {
+        images[0] = ulLoadImageFilePNG((const char*)sm1, (int)sm1_size, UL_IN_VRAM, UL_PF_PAL4);
+        images[1] = ulLoadImageFilePNG((const char*)sm2, (int)sm2_size, UL_IN_VRAM, UL_PF_PAL4);
+        images[2] = ulLoadImageFilePNG((const char*)sm3, (int)sm3_size, UL_IN_VRAM, UL_PF_PAL4);
+        images[3] = ulLoadImageFilePNG((const char*)lg1, (int)lg1_size, UL_IN_VRAM, UL_PF_PAL4);
+        images[4] = ulLoadImageFilePNG((const char*)lg2, (int)lg2_size, UL_IN_VRAM, UL_PF_PAL4);
+        images[5] = ulLoadImageFilePNG((const char*)lg3, (int)lg3_size, UL_IN_VRAM, UL_PF_PAL4);
     }
 }

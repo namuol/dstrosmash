@@ -1,5 +1,6 @@
 #ifndef _GAME_H
 #define _GAME_H
+
 #define LEFT_WALL 0
 #define RIGHT_WALL 127
 #define FLOOR 85
@@ -19,6 +20,7 @@
 #define SMALL_SPINNER_LAND_SCORE 0 // Death is enough of a penalty.
 #define DEATH_SCORE -100 
 
+#define FRAME_LENGTH_MS 17
 
 #define NUM_COLORS 16
 
@@ -87,6 +89,9 @@
 #include "Rock.h"
 #include "Explosion.h"
 #include "Spinner.h"
+#include "UFO.h"
+#include "UFOShot.h"
+#include "LevelRules.h"
 
 class Game {
 private:
@@ -96,6 +101,15 @@ private:
     void update();
     void draw();
     int lives;
+    float score_display; // Number which slides up and down for kicks.
+    
+    LevelRules* rules;
+
+    // Countdowns until next enemy (of each type):
+    int next_rock;
+    int next_spinner;
+    int next_missile;
+    int next_ufo;
 
     bool paused;
 
@@ -111,8 +125,12 @@ public:
     std::list<Rock *> *rocks;
     std::list<Explosion *> *explosions;
     std::list<Spinner *> *spinners;
+    std::list<UFO *> *ufos;
+    std::list<UFOShot *> *ufo_shots;
     Game();
     ~Game();
+
+    const LevelRules* getRules() const;
    
     void mainLoop();
     void updateScore(int amount);
