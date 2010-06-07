@@ -50,6 +50,15 @@ void Man::update() {
         }
     }
 
+    list<UFOShot *>::iterator us;
+    list<UFOShot *> tmpUFOShots( *game->ufo_shots ); 
+    for(us = tmpUFOShots.begin(); us != tmpUFOShots.end(); ++us ) {
+        if(COLTEST(this, (*us)) ) {
+            game->death();
+            return;
+        }
+    }
+
     list<Explosion *>::iterator e;
     list<Explosion *> tmpExplosions( *game->explosions ); 
     for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {

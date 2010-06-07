@@ -272,6 +272,8 @@ void Game::death() {
     list<Explosion *> *old_explosions = explosions;
     list<Rock *> *old_rocks = rocks;
     list<Spinner *> *old_spinners = spinners;
+    list<UFO *> *old_ufos = ufos;
+    list<UFOShot *> *old_ufo_shots = ufo_shots;
     shake_amt = 0.0;
 
     /*
@@ -303,10 +305,14 @@ void Game::death() {
     delete old_explosions;
     delete old_rocks;
     delete old_spinners;
+    delete old_ufos;
+    delete old_ufo_shots;
     shots = new list<Shot *>;
     rocks = new list<Rock *>;
     explosions = new list<Explosion *>;
     spinners = new list<Spinner *>;
+    ufos = new list<UFO *>;
+    ufo_shots = new list<UFOShot *>;
 
     updateScore(DEATH_SCORE);
 
