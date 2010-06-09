@@ -7,7 +7,7 @@
 #define UFO_FRAME_WIDTH 32
 
 #define UFO_SHOT_RATE 600
-#define UFO_SHOT_SPEED 0.6
+#define UFO_SHOT_SPEED 1.5
 
 class UFO : public Sprite {
 private:

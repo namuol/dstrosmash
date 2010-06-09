@@ -12,8 +12,8 @@
 #include "lg2.h"
 #include "lg3.h"
 
-#define MIN_ROCK_YSPEED 0.5
-#define MAX_ROCK_YSPEED 1.5
+#define MIN_ROCK_YSPEED 0.33
+#define MAX_ROCK_YSPEED 2.0
 #define MIN_ROCK_XSPEED 0
 #define MAX_ROCK_XSPEED 0.25
 #define ROCK_SPLIT_SPEED 0.25

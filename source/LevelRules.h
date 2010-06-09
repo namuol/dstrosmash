@@ -30,7 +30,7 @@ static LevelRules X1_RULES = {
     8,      // max_rocks
     2,      // max_spinners
     1,      // max_missiles
-    1,      // max_ufos
+    0,      // max_ufos
     
     0,      // min_rock_rest
     3000,   // max_rock_rest
@@ -53,7 +53,7 @@ static LevelRules X2_RULES = {
     8,      // max_rocks
     2,      // max_spinners
     1,      // max_missiles
-    1,      // max_ufos
+    0,      // max_ufos
     
     0,      // min_rock_rest
     3000,   // max_rock_rest
@@ -76,7 +76,7 @@ static LevelRules X3_RULES = {
     12,      // max_rocks
     3,      // max_spinners
     1,      // max_missiles
-    1,      // max_ufos
+    0,      // max_ufos
     
     0,      // min_rock_rest
     2200,   // max_rock_rest

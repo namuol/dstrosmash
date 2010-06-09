@@ -25,7 +25,7 @@ UL_IMAGE * Game::bgImg = NULL;
 
 Game::Game() {
     one_up_total = 0;
-    score = score_display = 5000;
+    score = score_display = 0;
     peak_score = 0;
     multiplyer = 1;
     rules = &X1_RULES;
@@ -68,7 +68,8 @@ void Game::update() {
     if(ul_keys.pressed.start)
     {
         //paused = !paused;
-        ufos->push_back(new UFO(this));
+        //ufos->push_back(new UFO(this));
+        spinners->push_back(new Spinner(this));
     }
 
     if(paused)

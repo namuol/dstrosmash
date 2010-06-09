@@ -50,10 +50,11 @@ Rock::Rock(Game *game, Rock *parent, int num, int rock_num)
         vy = parent->vy;
         color = parent->color;
     } else {
+        y = -img->sizeY/2;
         color = ROCK_COLORS[game->multiplyer-1][RAND(ROCK_COLORS[game->multiplyer-1][0])+1];
-
-        vx = ulMax(MIN_ROCK_XSPEED, (float)rand()/RAND_MAX * MAX_ROCK_XSPEED);
-        vy = ulMax(MIN_ROCK_YSPEED, (float)rand()/RAND_MAX * MAX_ROCK_YSPEED);
+        float speed_scale = sqrt((float)game->multiplyer/(float)MAX_MULTIPLYER);
+        vx = ulMax(MIN_ROCK_XSPEED, (float)rand()/RAND_MAX * MAX_ROCK_XSPEED)*speed_scale;
+        vy = ulMax(MIN_ROCK_YSPEED, (float)rand()/RAND_MAX * MAX_ROCK_YSPEED)*speed_scale;
         vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
     }
     flipped = vx < 0;

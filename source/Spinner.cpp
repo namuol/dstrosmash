@@ -23,6 +23,7 @@ Spinner::Spinner(Game *game)
         img = loaded_img_big;
     else
         img = loaded_img;
+
     if(is_big) {
        w = SPINNER_FRAME_WIDTH;
        h = SPINNER_FRAME_HEIGHT;
@@ -33,8 +34,11 @@ Spinner::Spinner(Game *game)
        h = SPINNER_FRAME_HEIGHT/2;
     }
 
-    vx = ulMax(MIN_SPINNER_XSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_XSPEED);
-    vy = ulMax(MIN_SPINNER_YSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_YSPEED);
+    y = -h;
+
+    float speed_scale = sqrt((float)game->multiplyer/(float)MAX_MULTIPLYER);
+    vx = ulMax(MIN_SPINNER_XSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_XSPEED)*speed_scale;
+    vy = ulMax(MIN_SPINNER_YSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_YSPEED)*speed_scale;
     vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
     flipped = vx < 0;
 }
@@ -83,7 +87,7 @@ void Spinner::update() {
 }
 
 void Spinner::draw() {
-    ulSetImageTileSize(img, 0, (SPINNER_FRAME_HEIGHT*(is_big?2:1))*((imgy/9)%SPINNER_FRAME_COUNT),
+    ulSetImageTileSize(img, 0, ulAbs((SPINNER_FRAME_HEIGHT*(is_big?2:1))*(((imgy+2*h)/9)%SPINNER_FRAME_COUNT)),
                        (SPINNER_FRAME_WIDTH*(is_big?2:1)), (SPINNER_FRAME_HEIGHT*(is_big?2:1))); 
     ulMirrorImageH(img, flipped);
     Sprite::draw();
