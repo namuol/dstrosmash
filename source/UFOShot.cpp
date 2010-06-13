@@ -23,8 +23,8 @@ UFOShot::UFOShot(Game* game, const UFO* parent)
     float s = sqrt(vx*vx + vy*vy);
     vx /= s;
     vy /= s;
-    vx *= UFO_SHOT_SPEED;
-    vy *= UFO_SHOT_SPEED;
+    vx *= game->speed_scale*UFO_SHOT_SPEED;
+    vy *= game->speed_scale*UFO_SHOT_SPEED;
 }
 
 //Destructor

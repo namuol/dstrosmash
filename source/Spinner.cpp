@@ -3,7 +3,6 @@
 #include "Game.h"
 #include "spinner.h"
 #include "spinner_big.h"
-#include "smash.h"
 
 #include <ulib/ulib.h>
 
@@ -36,9 +35,8 @@ Spinner::Spinner(Game *game)
 
     y = -h;
 
-    float speed_scale = sqrt((float)game->multiplyer/(float)MAX_MULTIPLYER);
-    vx = ulMax(MIN_SPINNER_XSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_XSPEED)*speed_scale;
-    vy = ulMax(MIN_SPINNER_YSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_YSPEED)*speed_scale;
+    vx = ulMax(MIN_SPINNER_XSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_XSPEED)*game->speed_scale;
+    vy = ulMax(MIN_SPINNER_YSPEED/(is_big?2:1), (float)rand()/RAND_MAX * MAX_SPINNER_YSPEED)*game->speed_scale;
     vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
     flipped = vx < 0;
 }
@@ -87,7 +85,7 @@ void Spinner::update() {
 }
 
 void Spinner::draw() {
-    ulSetImageTileSize(img, 0, ulAbs((SPINNER_FRAME_HEIGHT*(is_big?2:1))*(((imgy+2*h)/9)%SPINNER_FRAME_COUNT)),
+    ulSetImageTileSize(img, 0, ulAbs((SPINNER_FRAME_HEIGHT*(is_big?2:1))*(((imgy+2*h)/6)%SPINNER_FRAME_COUNT)),
                        (SPINNER_FRAME_WIDTH*(is_big?2:1)), (SPINNER_FRAME_HEIGHT*(is_big?2:1))); 
     ulMirrorImageH(img, flipped);
     Sprite::draw();
@@ -100,7 +98,8 @@ void Spinner::kill(DeathType deathType) {
                 game->updateScore(BIG_SPINNER_LAND_SCORE);
             else
                 game->updateScore(SMALL_SPINNER_LAND_SCORE);
-            game->death(); // death() will call delete on it for us!
+            delete this;
+            game->death();
             break;
         case OUT_OF_BOUNDS:
             delete this;
@@ -114,7 +113,6 @@ void Spinner::kill(DeathType deathType) {
             else
                 game->updateScore(SMALL_SPINNER_SHOT_SCORE);
 
-            //playGenericSound((void *)smash, (u32)smash_size);
             delete this;
             break;
 

@@ -6,18 +6,19 @@
 #define FLOOR 85
 #define CEILING 0
 #define MAN_SPEED 2
-#define MAX_SHOTS 5
+#define MAX_SHOTS 2
 
 #define BIG_ROCK_SHOT_SCORE 10
 #define SMALL_ROCK_SHOT_SCORE 20
 #define BIG_SPINNER_SHOT_SCORE 40
 #define SMALL_SPINNER_SHOT_SCORE 80
-#define GUIDED_MISSILE_SHOT_SCORE 50
+#define MISSILE_SHOT_SCORE 50
 #define UFO_SHOT_SCORE 100
 #define BIG_ROCK_LAND_SCORE -5
 #define SMALL_ROCK_LAND_SCORE -10
 #define BIG_SPINNER_LAND_SCORE 0 // Death is enough of a panalty.
 #define SMALL_SPINNER_LAND_SCORE 0 // Death is enough of a penalty.
+#define MISSILE_LAND_SCORE 0
 #define DEATH_SCORE -100 
 
 #define FRAME_LENGTH_MS 17
@@ -72,16 +73,20 @@
 #define STARTING_LIVES 4
 #define ONE_UP_SCORE 3000 // Every one of these gets you +1 life.
 
-#define DEATH_FRAME_COUNT 80
+#define DEATH_FRAME_COUNT 130
 #define DEATH_SHAKE_AMT 10.0
 #define SHAKE_MAX 5.0
 
 #define SHAKE_DECREASE 0.1
 #define ROCK_LAND_SHAKE 2.0
 
+#define FUTILITY_RATE 600
+
 #include <ctime>
 #include <cstdlib>
 #include <list>
+
+#include <maxmod9.h>
 
 #include "util.h"
 
@@ -92,6 +97,7 @@
 #include "Spinner.h"
 #include "UFO.h"
 #include "UFOShot.h"
+#include "Missile.h"
 #include "LevelRules.h"
 
 class Game {
@@ -112,11 +118,14 @@ private:
     int next_missile;
     int next_ufo;
 
+    int next_futility;
+
     bool paused;
 
 public:
     float shake_amt;
     int multiplyer;
+    float speed_scale;
     int score;
     int peak_score;
     int one_up_total;
@@ -128,6 +137,7 @@ public:
     std::list<Spinner *> *spinners;
     std::list<UFO *> *ufos;
     std::list<UFOShot *> *ufo_shots;
+    std::list<Missile *> *missiles;
     Game();
     ~Game();
 

@@ -1,8 +1,11 @@
-#include "Explosion.h"
-#include "Game.h"
-#include "explosion.h"
-
 #include <ulib/ulib.h>
+#include <maxmod9.h>
+
+#include "Game.h"
+#include "Explosion.h"
+
+#include "explosion.h"
+#include "sfx.h"
 
 UL_IMAGE *Explosion::loaded_img = NULL;
 
@@ -16,6 +19,8 @@ Explosion::Explosion(Game *game, float x, float y)
         loaded_img=ulLoadImageFilePNG((const char*)explosion, (int)explosion_size, UL_IN_VRAM, UL_PF_PAL4);
     img = loaded_img;
     frame_count = 0;
+
+    SFX::hit();
 }
 
 Explosion::~Explosion() {

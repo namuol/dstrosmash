@@ -11,8 +11,8 @@ using namespace std;
 #include "Explosion.h"
 #include "Rock.h"
 #include "lg1.h"
-#include "smash.h"
 
+#include "sfx.h"
 
 
 // NOTE: The first half of the rock images MUST be small rocks.
@@ -52,9 +52,8 @@ Rock::Rock(Game *game, Rock *parent, int num, int rock_num)
     } else {
         y = -img->sizeY/2;
         color = ROCK_COLORS[game->multiplyer-1][RAND(ROCK_COLORS[game->multiplyer-1][0])+1];
-        float speed_scale = sqrt((float)game->multiplyer/(float)MAX_MULTIPLYER);
-        vx = ulMax(MIN_ROCK_XSPEED, (float)rand()/RAND_MAX * MAX_ROCK_XSPEED)*speed_scale;
-        vy = ulMax(MIN_ROCK_YSPEED, (float)rand()/RAND_MAX * MAX_ROCK_YSPEED)*speed_scale;
+        vx = ulMax(MIN_ROCK_XSPEED, (float)rand()/RAND_MAX * MAX_ROCK_XSPEED)*game->speed_scale;
+        vy = ulMax(MIN_ROCK_YSPEED, (float)rand()/RAND_MAX * MAX_ROCK_YSPEED)*game->speed_scale;
         vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
     }
     flipped = vx < 0;
@@ -124,6 +123,7 @@ void Rock::kill(DeathType deathType) {
 
         case SHOT:
             if( is_big && (float)rand()/RAND_MAX < ROCK_SPLIT_PROBABILITY ){
+                SFX::hit();
                 rockNum = RAND(NUM_ROCK_IMAGES/2);
                 game->rocks->push_back(new Rock(game, this, 0, rockNum) );
                 game->rocks->push_back(new Rock(game, this, 1, rockNum) );
@@ -136,7 +136,6 @@ void Rock::kill(DeathType deathType) {
             else
                 game->updateScore(SMALL_ROCK_SHOT_SCORE);
 
-            //playGenericSound((void *)smash, (u32)smash_size);
             delete this;
             break;
 

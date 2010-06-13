@@ -2,7 +2,6 @@
 #include "UFO.h"
 #include "Game.h"
 #include "ufo.h"
-#include "smash.h"
 
 #include <ulib/ulib.h>
 
@@ -22,10 +21,10 @@ UFO::UFO(Game *game)
     next_shot = UFO_SHOT_RATE;
 
     if(RAND(2)==1){
-        vx = game->getRules()->ufo_speed;
+        vx = game->getRules()->ufo_speed*game->speed_scale;
         x = -UFO_FRAME_WIDTH/2;
     } else {
-        vx = -game->getRules()->ufo_speed;
+        vx = -game->getRules()->ufo_speed*game->speed_scale;
         x = RIGHT_WALL;
     }
 }
@@ -80,7 +79,7 @@ void UFO::draw() {
 
 void UFO::shoot() {
     game->ufo_shots->push_back(new UFOShot(game,this)); 
-    next_shot = UFO_SHOT_RATE;
+    next_shot = (int)((float)UFO_SHOT_RATE/game->speed_scale);
 }
 
 void UFO::kill(DeathType deathType) {
@@ -93,7 +92,6 @@ void UFO::kill(DeathType deathType) {
             game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
             game->updateScore(UFO_SHOT_SCORE);
 
-            //playGenericSound((void *)smash, (u32)smash_size);
             delete this;
             break;
         default:;

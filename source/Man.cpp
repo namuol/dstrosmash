@@ -59,6 +59,15 @@ void Man::update() {
         }
     }
 
+    list<Missile *>::iterator m;
+    list<Missile *> tmpMissiles( *game->missiles ); 
+    for(m = tmpMissiles.begin(); m != tmpMissiles.end(); ++m ) {
+        if(COLTEST(this, (*m)) ) {
+            game->death();
+            return;
+        }
+    }
+
     list<Explosion *>::iterator e;
     list<Explosion *> tmpExplosions( *game->explosions ); 
     for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {

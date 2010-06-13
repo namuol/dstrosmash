@@ -1,0 +1,7 @@
+width = 16
+height = 16
+variable = 0
+bitplanes = 1
+pal[count] = 2
+pal[0] = #ff00ff
+pal[1] = #ffffff

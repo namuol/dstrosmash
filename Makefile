@@ -1,13 +1,12 @@
 PROGNAME = uLib
-OFILES   +=
 ADD_LIBS +=
 
 PATH 		:= $(DEVKITARM)/bin:$(PATH)
 
-#ARM7BIN		:= -7 $(PAPATH)/lib/arm7/arm7.bin
-TEXT1 		:= µLib Demo
-TEXT2 		:= using µLib
-TEXT3 		:= ulib.dev-fr.org
+#ARM7BIN		:= -7 $(DEVKITARM)/lib/arm7/arm7.bin
+TEXT1 		:= DSTROSMASH!
+TEXT2 		:= A Remake
+TEXT3 		:= lmn.us.to
 ICON 		:= -b $(CURDIR)/../logo.bmp
 LOGO		:= -o $(CURDIR)/../logo_wifi.bmp
 
@@ -15,20 +14,23 @@ LOGO		:= -o $(CURDIR)/../logo_wifi.bmp
 .SUFFIXES:
 #---------------------------------------------------------------------------------
 ifeq ($(strip $(DEVKITARM)),)
-$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM)
+$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
+
+include $(DEVKITARM)/base_rules
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output, if this ends with _mb generates a multiboot image
 # BUILD is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET	:=	$(shell basename $(CURDIR))
+TARGET	    :=	$(shell basename $(CURDIR))
 BUILD		:=	build
-SOURCES	:=	gfx source data
+SOURCES	    :=	source data/gfx
 INCLUDES	:=	include build data
+AUDIO       :=  data/audio
 
-EXPORT_DIR := /c/ndsexamples/
 #---------------------------------------------------------------------------------
 # ARM7BIN is the path to an arm7 binary other than the default
 #	usage: ARM7BIN := -7 binaryName.bin
@@ -37,7 +39,6 @@ EXPORT_DIR := /c/ndsexamples/
 #	usage: ICON := -t iconName.bmp "text line one; text line 2; text line 3"
 # 
 #---------------------------------------------------------------------------------
-
 
 
 #---------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ PREFIX			:=	arm-eabi-
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:= -lul -lpng -lz -lfat -lnds9
+LIBS	:= -lul -lpng -lz -lfat -lmm9 -lnds9
  
  
 #---------------------------------------------------------------------------------
@@ -94,7 +95,9 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
  
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
  
-export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
+export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir)) \
+					$(foreach dir,$(GRAPHICS),$(CURDIR)/$(dir))
  
 export CC		:=	$(PREFIX)gcc
 export CXX		:=	$(PREFIX)g++
@@ -109,18 +112,16 @@ export LD		:=	$(CXX)
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-PCXFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.pcx)))
-BINFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.bin)))
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*))) soundbank.bin
 PNGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.png)))
-PALFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.pal)))
-RAWFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.raw)))
-MAPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.map)))
-JPEGFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.jpg)))
-MODFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.mod)))
-GIFFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.gif)))
-BMPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.bmp)))
+OFTFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.oft)))
+
+# build audio file list, include full path
+export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(AUDIO)/*.*)),$(CURDIR)/$(AUDIO)/$(dir))
  
-export OFILES	:=	$(MAPFILES:.map=.o) $(RAWFILES:.raw=.o) $(PALFILES:.pal=.o) $(BINFILES:.bin=.o) $(PNGFILES:.png=.o) $(PCXFILES:.pcx=.o) $(JPEGFILES:.jpg=.o) $(MODFILES:.mod=.o) $(GIFFILES:.gif=.o) $(BMPFILES:.bmp=.o)\
+export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
+					$(PNGFILES:.png=.o) \
+					$(OFTFILES:.oft=.o) \
 					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
  
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
@@ -130,8 +131,10 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					-I$(CURDIR)/$(BUILD)
  
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+
  
-.PHONY: $(BUILD) clean export
+.PHONY: $(BUILD) clean
  
 #---------------------------------------------------------------------------------
 $(BUILD):
@@ -143,10 +146,6 @@ clean:
 	@echo clean ...$(TARGET)
 	@rm -fr $(BUILD) *.elf *.*ds*
  
-export:
-	@echo exporting ...$(TARGET)
-	@cp *.nds $(EXPORT_DIR)/$(TARGET).nds
-
 #---------------------------------------------------------------------------------
 else
  
@@ -165,13 +164,11 @@ $(OUTPUT).elf	:	$(OFILES)
  
 #---------------------------------------------------------------------------------
 %.ds.gba: %.nds
-	@echo built ... $(notdir $@)
 	@dsbuild $< 
 	@cp $(CURDIR)/../$(notdir $@) ../$(notdir $(OUTPUT)).sc.nds 
 
 #---------------------------------------------------------------------------------
 %.nds: %.bin
-	
 	@ndstool -c $@ -9 $(TARGET).bin $(ARM7BIN) $(LOGO) $(ICON) "$(TEXT1);$(TEXT2);$(TEXT3)"
 
 
@@ -184,7 +181,6 @@ $(OUTPUT).elf	:	$(OFILES)
 %.elf:
 	@echo $(LD)  $(LDFLAGS) -specs=ds_arm9.specs $(OFILES) $(LIBPATHS) $(LIBS) -o $(TARGET).elf
 	@$(LD)  $(LDFLAGS) -specs=ds_arm9.specs $(OFILES) $(LIBPATHS) $(LIBS) -o $(TARGET).elf
- 
  
  
 #---------------------------------------------------------------------------------
@@ -208,8 +204,18 @@ $(OUTPUT).elf	:	$(OFILES)
 	@echo $(notdir $<)
 	@$(CC) -MM $(CFLAGS) -o $*.d $<
 	@$(CC)  $(ASFLAGS) -c $< -o$@
- 
+
+#---------------------------------------------------------------------------------
+# canned command sequence for binary data
+#---------------------------------------------------------------------------------
 define bin2o
+	bin2s $< | $(AS) -o $(@)
+	echo "extern const u8" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"_end[];" > `(echo $(<F) | tr . _)`.h
+	echo "extern const u8" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"[];" >> `(echo $(<F) | tr . _)`.h
+	echo "extern const u32" `(echo $(<F) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`_size";" >> `(echo $(<F) | tr . _)`.h
+endef
+
+define bin2o2
 	cp $(<) $(*).tmp
 	$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
 	--rename-section .data=.rodata \
@@ -222,73 +228,59 @@ define bin2o
 	rm $(*).tmp
 endef
 
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
 #---------------------------------------------------------------------------------
-%.o	:	%.pcx
-#---------------------------------------------------------------------------------
+%.o: %.c
 	@echo $(notdir $<)
-	@$(bin2o)
- 
+	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@ $(ERROR_FILTER)
+
 #---------------------------------------------------------------------------------
-%.o	:	%.bin
-#---------------------------------------------------------------------------------
+%.o: %.m
 	@echo $(notdir $<)
-	@$(bin2o)
- 
+	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(OBJCFLAGS) -c $< -o $@ $(ERROR_FILTER)
+
+#---------------------------------------------------------------------------------
+%.o: %.s
+	@echo $(notdir $<)
+	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(ASFLAGS) -c $< -o $@ $(ERROR_FILTER)
+
+#---------------------------------------------------------------------------------
+%.o: %.S
+	@echo $(notdir $<)
+	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d -x assembler-with-cpp $(ASFLAGS) -c $< -o $@ $(ERROR_FILTER)
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 #---------------------------------------------------------------------------------
 %.o	:	%.png
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
-	@$(bin2o)
+	@$(bin2o2)
 
 #---------------------------------------------------------------------------------
-%.o	:	%.raw
+%.o	:	%.oft
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
-	@$(bin2o)
- 
-#---------------------------------------------------------------------------------
-%.o	:	%.pal
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
- 
-#---------------------------------------------------------------------------------
-%.o	:	%.map
-#---------------------------------------------------------------------------------
+	@$(bin2o2)
+
+#-------------------------------------------------------------
+# rule for converting the output into an object file
+#-------------------------------------------------------------
+%.bin.o	:	%.bin
+#-------------------------------------------------------------
 	@echo $(notdir $<)
 	@$(bin2o)
 
-#---------------------------------------------------------------------------------
-%.o	:	%.mdl
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
-
-#---------------------------------------------------------------------------------
-%.o	:	%.jpg
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
-
-#---------------------------------------------------------------------------------
-%.o	:	%.mod
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
-
-#---------------------------------------------------------------------------------
-%.o	:	%.gif
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
-
-#---------------------------------------------------------------------------------
-%.o	:	%.bmp
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
+#-------------------------------------------------------------
+# rule for generating soundbank file from audio files
+#-------------------------------------------------------------
+soundbank.bin : $(AUDIOFILES)
+#-------------------------------------------------------------
+	@mmutil $^ -osoundbank.bin -hsoundbank.h -d
 
  
+
 -include $(DEPENDS) 
 
 #---------------------------------------------------------------------------------------
