@@ -20,24 +20,6 @@ int main() {
 
     srand(time(NULL));
 
-    // Set up maxmod (SFX)
-    mmInitDefaultMem( (mm_addr)soundbank_bin );
-
-    // Load some SFX:
-    mmLoadEffect( SFX_DEATH1 );
-    mmLoadEffect( SFX_DEATH2 );
-    mmLoadEffect( SFX_DEATH3 );
-    mmLoadEffect( SFX_DEATH4 );
-    mmLoadEffect( SFX_DEATH5 );
-    mmLoadEffect( SFX_DEATH6 );
-    mmLoadEffect( SFX_DEATH7 );
-    mmLoadEffect( SFX_FUTILITY1 );
-    mmLoadEffect( SFX_FUTILITY2 );
-    mmLoadEffect( SFX_FUTILITY3 );
-    mmLoadEffect( SFX_FUTILITY4 );
-    mmLoadEffect( SFX_FUTILITY5 );
-    mmLoadEffect( SFX_HIT1 );
-
 
 
     //Initialize uLibrary
@@ -69,6 +51,30 @@ int main() {
     UFO::loadImages();
     UFOShot::loadImages();
     Missile::loadImages();
+
+    // Set up maxmod (SFX)
+    mmInitDefaultMem( (mm_addr)soundbank_bin );
+
+    // Load some SFX:
+    mmLoadEffect( SFX_DEATH1 );
+    mmLoadEffect( SFX_DEATH2 );
+    mmLoadEffect( SFX_DEATH3 );
+    mmLoadEffect( SFX_DEATH4 );
+    mmLoadEffect( SFX_DEATH5 );
+    mmLoadEffect( SFX_DEATH6 );
+    mmLoadEffect( SFX_DEATH7 );
+    mmLoadEffect( SFX_FUTILITY1 );
+    mmLoadEffect( SFX_FUTILITY2 );
+    mmLoadEffect( SFX_FUTILITY3 );
+    mmLoadEffect( SFX_FUTILITY4 );
+    mmLoadEffect( SFX_FUTILITY5 );
+    mmLoadEffect( SFX_HIT1 );
+    mmLoadEffect( SFX_MISSILE );
+
+    mmLoad( MOD_MISSILE );
+    mmSetModuleVolume( 0 );
+    mmStart( MOD_MISSILE, MM_PLAY_LOOP );
+
     game.mainLoop();
 
     //Program end - should never get there

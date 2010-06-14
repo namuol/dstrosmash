@@ -2,6 +2,7 @@
 #include "Missile.h"
 #include "Game.h"
 #include "missile.h"
+#include "sfx.h"
 
 #include <ulib/ulib.h>
 
@@ -21,12 +22,14 @@ Missile::Missile(Game *game)
   speed(game->speed_scale*MISSILE_MAX_SPEED),
   next_blink(MISSILE_BLINK_ON_MS)
 {
+    SFX::missile_start();
     vy = speed;
     vx = 0;
     img = loaded_img;
 }
 
 Missile::~Missile() {
+    SFX::missile_stop();
     game->missiles->remove(this);
 }
 
@@ -145,11 +148,11 @@ void Missile::kill(DeathType deathType) {
         case EXPLODED:
             game->updateScore(MISSILE_SHOT_SCORE);
         case COLLIDE:
+        default:
             game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
             delete this;
             break;
 
-        default:;
     }
 }
 

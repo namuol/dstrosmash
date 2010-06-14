@@ -18,7 +18,7 @@ UFO::UFO(Game *game)
          UFO_FRAME_HEIGHT/2)
 {
     img = loaded_img;
-    next_shot = UFO_SHOT_RATE;
+    next_shot = (int)((float)UFO_SHOT_RATE/game->speed_scale);
 
     if(RAND(2)==1){
         vx = game->getRules()->ufo_speed*game->speed_scale;

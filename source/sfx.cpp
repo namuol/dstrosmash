@@ -28,6 +28,7 @@ mm_sfxhand SFX::futility_h = 0;
 mm_sfxhand SFX::death_h = 0;
 mm_sfxhand SFX::hit_h = 0;
 bool SFX::muted = false;
+int SFX::missiles_playing = 0;
 
 void SFX::futility() {
     if(muted) return;
@@ -36,7 +37,9 @@ void SFX::futility() {
 
 void SFX::death() {
     if(muted) return;
+    missiles_playing = 0;
     mmEffectCancelAll();
+    mmSetModuleVolume( 0 );
     death_h = mmEffect( DEATH[ RAND(DEATH_FX_COUNT) ] );
 }
 
@@ -45,4 +48,20 @@ void SFX::hit() {
     mmEffectCancel(futility_h);
     mmEffectCancel(hit_h);
     hit_h = mmEffect( HIT[ RAND(HIT_FX_COUNT) ] );
+}
+
+void SFX::missile_start() {
+    if(muted) return;
+    ++missiles_playing;
+    mmSetModuleVolume( 1024 );
+}
+
+void SFX::missile_stop() {
+    --missiles_playing;
+    if(missiles_playing <= 0)
+        mmSetModuleVolume( 0 );
+}
+
+void SFX::stop_all() {
+    
 }

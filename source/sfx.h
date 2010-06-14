@@ -17,6 +17,12 @@ struct SFX {
     static void death();
     static void hit(); 
 
+    static int missiles_playing;
+    static void missile_start();
+    static void missile_stop();
+
+    static void stop_all();
+
     static mm_sfxhand futility_h;
     static mm_sfxhand death_h;
     static mm_sfxhand hit_h;

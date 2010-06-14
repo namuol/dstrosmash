@@ -80,7 +80,8 @@
 #define SHAKE_DECREASE 0.1
 #define ROCK_LAND_SHAKE 2.0
 
-#define FUTILITY_RATE 600
+#define START_FUTILITY_RATE 800
+#define END_FUTILITY_RATE 400
 
 #include <ctime>
 #include <cstdlib>

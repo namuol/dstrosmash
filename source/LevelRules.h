@@ -29,7 +29,7 @@ typedef struct LevelRules {
 } LevelRules;
 
 static LevelRules X1_RULES = {
-    8,      // max_rocks
+    6,      // max_rocks
     2,      // max_spinners
     1,      // max_missiles
     0,      // max_ufos
@@ -54,7 +54,7 @@ static LevelRules X1_RULES = {
 };
 
 static LevelRules X2_RULES = {
-    8,      // max_rocks
+    6,      // max_rocks
     2,      // max_spinners
     1,      // max_missiles
     0,      // max_ufos
@@ -79,7 +79,7 @@ static LevelRules X2_RULES = {
 };
 
 static LevelRules X3_RULES = {
-    12,     // max_rocks
+    6,     // max_rocks
     3,      // max_spinners
     1,      // max_missiles
     0,      // max_ufos
@@ -104,7 +104,7 @@ static LevelRules X3_RULES = {
 };
 
 static LevelRules X4_RULES = {
-    14,      // max_rocks
+    8,      // max_rocks
     4,      // max_spinners
     1,      // max_missiles
     1,      // max_ufos
@@ -129,9 +129,9 @@ static LevelRules X4_RULES = {
 };
 
 static LevelRules X5_RULES = {
-    18,     // max_rocks
+    10,     // max_rocks
     5,      // max_spinners
-    1,      // max_missiles
+    2,      // max_missiles
     1,      // max_ufos
     
     3,      // max_rock_spawn
@@ -154,9 +154,9 @@ static LevelRules X5_RULES = {
 };
 
 static LevelRules X6_RULES = {
-    18,     // max_rocks
-    5,      // max_spinners
-    1,      // max_missiles
+    12,     // max_rocks
+    4,      // max_spinners
+    2,      // max_missiles
     1,      // max_ufos
     
     3,      // max_rock_spawn

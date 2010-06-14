@@ -36,7 +36,9 @@ Game::Game() {
     speed_scale = sqrt((float)multiplyer/(float)MAX_MULTIPLYER);
     rules = &X1_RULES;
     
-    next_futility = FUTILITY_RATE / speed_scale;
+    next_futility = LERP(START_FUTILITY_RATE,
+                         END_FUTILITY_RATE,
+                         score / X6_LEVEL_SCORE);
 
     next_rock = RAND_RANGE(rules->min_rock_rest,rules->max_rock_rest);
     next_spinner = RAND_RANGE(rules->min_spinner_rest,rules->max_spinner_rest);
@@ -77,10 +79,10 @@ void Game::update() {
 
     if(ul_keys.pressed.start)
     {
-        paused = !paused;
+        //paused = !paused;
         //ufos->push_back(new UFO(this));
         //spinners->push_back(new Spinner(this));
-        //missiles->push_back(new Missile(this));
+        missiles->push_back(new Missile(this));
     }
 
     if(paused)
@@ -158,7 +160,9 @@ void Game::update() {
     if(next_futility <= 0)
     {
         SFX::futility();
-        next_futility = FUTILITY_RATE / speed_scale;
+        next_futility = LERP(START_FUTILITY_RATE,
+                             END_FUTILITY_RATE,
+                             score / X6_LEVEL_SCORE);
     }
     next_futility -= FRAME_LENGTH_MS;
 
@@ -306,11 +310,11 @@ void Game::draw() {
     if( lives >= 0 ) {
         theMan->draw();
     } else {
-        ulPrintf_xy(RIGHT_WALL-80, FLOOR/2, "GAME OVER");
-        ulPrintf_xy(RIGHT_WALL-80, FLOOR/2+16, "Final Score:");
-        ulPrintf_xy(RIGHT_WALL-80, FLOOR/2+32, "%12i", score);
-        ulPrintf_xy(RIGHT_WALL-80, FLOOR/2+48, " Peak Score:");
-        ulPrintf_xy(RIGHT_WALL-80, FLOOR/2+64, "%12i", peak_score);
+        ulPrintf_xy(28, FLOOR/2, "GAME OVER");
+        ulPrintf_xy(28, FLOOR/2+16, "Final Score:");
+        ulPrintf_xy(28, FLOOR/2+32, "%12i", score);
+        ulPrintf_xy(28, FLOOR/2+48, " Peak Score:");
+        ulPrintf_xy(28, FLOOR/2+64, "%12i", peak_score);
     }
     if( lives > 6 )
         sprintf(lives_str, "*%-6i", lives);
@@ -335,7 +339,8 @@ void Game::draw() {
     //ulDrawLine(RIGHT_WALL*2, 0, RIGHT_WALL*2, CEILING*2, RGB15(31,0,0));
 		
 	//Wait the VBlank (synchronize at 60 fps)
-	ulSyncFrame();
+	//ulSyncFrame();
+    swiWaitForVBlank();
     ulResetScreenView();
 }
 
@@ -412,7 +417,8 @@ void Game::death() {
         ulDrawImageXY( bgImg, 0, 0 );
 
         ulEndDrawing();
-        ulSyncFrame();
+        //ulSyncFrame();
+        swiWaitForVBlank();
         ++frameCount;
     }
     ulResetScreenView();
