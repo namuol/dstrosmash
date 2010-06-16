@@ -70,10 +70,13 @@ int main() {
     mmLoadEffect( SFX_FUTILITY5 );
     mmLoadEffect( SFX_HIT1 );
     mmLoadEffect( SFX_MISSILE );
+    mmLoadEffect( SFX_SPINNER );
 
     mmLoad( MOD_MISSILE );
     mmSetModuleVolume( 0 );
     mmStart( MOD_MISSILE, MM_PLAY_LOOP );
+
+    mmLoad( MOD_SPINNER );
 
     game.mainLoop();
 

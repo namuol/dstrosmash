@@ -34,11 +34,13 @@ Game::Game() {
     peak_score = 0;
     multiplyer = 1;
     speed_scale = sqrt((float)multiplyer/(float)MAX_MULTIPLYER);
-    rules = &X1_RULES;
+    rules = &LevelRules::RULES[0];
     
     next_futility = LERP(START_FUTILITY_RATE,
                          END_FUTILITY_RATE,
                          score / X6_LEVEL_SCORE);
+
+    rules = &LevelRules::RULES[0];
 
     next_rock = RAND_RANGE(rules->min_rock_rest,rules->max_rock_rest);
     next_spinner = RAND_RANGE(rules->min_spinner_rest,rules->max_spinner_rest);
@@ -81,8 +83,9 @@ void Game::update() {
     {
         //paused = !paused;
         //ufos->push_back(new UFO(this));
-        //spinners->push_back(new Spinner(this));
-        missiles->push_back(new Missile(this));
+        spinners->push_back(new Spinner(this));
+        //missiles->push_back(new Missile(this));
+        //SFX::spinner_start();
     }
 
     if(paused)
@@ -144,17 +147,7 @@ void Game::update() {
         (*e)->update();
     }
 
-
-    switch(multiplyer)
-    {
-    case 1: rules = &X1_RULES; break;
-    case 2: rules = &X2_RULES; break;
-    case 3: rules = &X3_RULES; break;
-    case 4: rules = &X4_RULES; break;
-    case 5: rules = &X5_RULES; break;
-    case 6: rules = &X6_RULES; break;
-    default: rules = &X1_RULES; break;
-    }
+    rules = multiplyer >= 0 ? &LevelRules::RULES[multiplyer-1] : &LevelRules::RULES[0];
 
     // "Soundtrack" //////////////////////////////////////////////////////////
     if(next_futility <= 0)
@@ -204,6 +197,8 @@ void Game::update() {
         next_ufo -= FRAME_LENGTH_MS;
         next_missile -= FRAME_LENGTH_MS;
     }
+
+    SFX::update();
 }
 
 void Game::updateScore(int amount) {
@@ -249,7 +244,7 @@ void Game::draw() {
     // First draw background
     ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, LEVEL_COLORS[lives<0?0:multiplyer]);
 
-    int cpuTime = (TIMER1_DATA * 1000) / totalTime;
+    //int cpuTime = (TIMER1_DATA * 1000) / totalTime;
     //ulPrintf_xy(0, 0, "CPU: %02i.%i%% %f %f", cpuTime / 10, cpuTime % 10, SHAKE_MAX, 
     //    missiles->size() == 1 ? missiles->front()->x:missiles->size());
 

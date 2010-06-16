@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "spinner.h"
 #include "spinner_big.h"
+#include "sfx.h"
 
 #include <ulib/ulib.h>
 
@@ -43,6 +44,8 @@ Spinner::Spinner(Game *game)
 
 Spinner::~Spinner() {
     game->spinners->remove(this);
+    if(game->spinners->size() == 0)
+        SFX::spinner_cancel();
 }
 
 void Spinner::update() {
@@ -56,7 +59,6 @@ void Spinner::update() {
         kill(OUT_OF_BOUNDS);
         return;
     }
-
 
     list<Shot *>::iterator s;
     list<Shot *> tmpShots( *game->shots ); 
@@ -77,7 +79,7 @@ void Spinner::update() {
         }
     }
 
-
+    SFX::spinner( LERP(1.0,0.5, (float)(y+h)/(float)FLOOR) );
     x += vx;
     y += vy;
     

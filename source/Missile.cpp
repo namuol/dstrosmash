@@ -17,19 +17,21 @@ Missile::Missile(Game *game)
          0,
          MISSILE_FRAME_WIDTH/2,
          MISSILE_FRAME_HEIGHT/2),
+  next_blink(MISSILE_BLINK_ON_MS),
+  next_beep(0),
   frame(1),
   blinking(true),
-  speed(game->speed_scale*MISSILE_MAX_SPEED),
-  next_blink(MISSILE_BLINK_ON_MS)
+  speed(game->speed_scale*MISSILE_MAX_SPEED)
 {
-    SFX::missile_start();
+    //SFX::missile_start();
     vy = speed;
     vx = 0;
     img = loaded_img;
 }
 
 Missile::~Missile() {
-    SFX::missile_stop();
+    //SFX::missile_stop();
+    SFX::missile_beep_cancel();
     game->missiles->remove(this);
 }
 
@@ -104,8 +106,8 @@ void Missile::update() {
     vxi = (dx/dr)*speed;
     vyi = (dy/dr)*speed;
     
-    vx += (vxi-vx)*0.15;
-    vy += (vyi-vy)*0.15;
+    vx += (vxi-vx)*MISSILE_MAX_ACC*game->speed_scale;
+    vy += (vyi-vy)*MISSILE_MAX_ACC*game->speed_scale;
 
     dr = sqrt(vx*vx + vy*vy);
     vx = (vx/dr)*speed;
@@ -113,6 +115,16 @@ void Missile::update() {
 
     x += vx;
     y += vy;
+
+    if(next_beep <= 0)
+    {
+        SFX::missile_beep();
+        next_beep = MISSILE_BEEP_MS/game->speed_scale;
+    } else if(next_beep <= 0.5*MISSILE_BEEP_MS/game->speed_scale)
+    {
+        SFX::missile_beep_cancel();
+    }
+    next_beep -= FRAME_LENGTH_MS;
 
     if(next_blink <= 0)
     {

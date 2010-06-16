@@ -18,6 +18,52 @@ using namespace std;
 // NOTE: The first half of the rock images MUST be small rocks.
 UL_IMAGE *Rock::images[NUM_ROCK_IMAGES];
 
+static int X1_ROCK_COLORS[] = {
+    6,
+    ORANGE,
+    LIGHT_BLUE,
+    PINK,
+    GREEN,
+    OFF_WHITE,
+    YELLOW
+};
+
+static int X2_ROCK_COLORS[] = {
+    5,
+    ORANGE,
+    LIGHT_BLUE,
+    PINK,
+    OFF_WHITE,
+    YELLOW
+};
+
+static int X3_ROCK_COLORS[] = {
+    5,
+    ORANGE,
+    LIGHT_BLUE,
+    GREEN,
+    OFF_WHITE,
+    YELLOW
+};
+
+static int X4_ROCK_COLORS[] = {
+    4,
+    ORANGE,
+    OFF_WHITE,
+    YELLOW,
+    DARK_GREEN
+};
+
+static int X5_ROCK_COLORS[] = {
+    3,
+    GREEN,
+    YELLOW,
+    DARK_GREEN
+};
+
+static int *X6_ROCK_COLORS = X1_ROCK_COLORS;
+
+
 // Each int is a series of color flags ORd 
 //  together; the values are defined in Game.h
 const int *Rock::ROCK_COLORS[] = {
