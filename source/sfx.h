@@ -19,25 +19,30 @@ struct SFX {
     static void death();
     static void hit(); 
     static void missile_beep();
-    static void missile_beep_cancel();
+    static void missile_beep_stop();
 
-    static int missiles_playing;
-    static void missile_start();
-    static void missile_stop();
-    
     static void spinner(float pitch = 1.0);
-    static void spinner_cancel();
+    static void spinner_stop();
     static float spinner_min_pitch;
 
-    static int spinners_playing;
-    static void spinner_start();
-    static void spinner_stop();
+    static void ufo();
+    static void ufo_stop();
+    static void ufo_beep();
+    static void ufo_beep_stop();
 
     static mm_sfxhand futility_h;
     static mm_sfxhand death_h;
     static mm_sfxhand hit_h;
     static mm_sfxhand missile_h;
     static mm_sfxhand spinner_h;
+    static mm_sfxhand ufo_h;
+
+    static mm_sound_effect futility_sf;
+    static mm_sound_effect death_sf;
+    static mm_sound_effect hit_sf;
+    static mm_sound_effect missile_sf;
+    static mm_sound_effect spinner_sf;
+    static mm_sound_effect ufo_sf;
 
     static bool muted;
 };

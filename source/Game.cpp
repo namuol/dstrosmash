@@ -1,6 +1,7 @@
 /*
  * Game - a Game object is an instance of an ASTROSMASH! game.
  */
+#include <nds.h>
 #include <maxmod9.h>
 
 #include "Game.h"
@@ -36,9 +37,10 @@ Game::Game() {
     speed_scale = sqrt((float)multiplyer/(float)MAX_MULTIPLYER);
     rules = &LevelRules::RULES[0];
     
-    next_futility = LERP(START_FUTILITY_RATE,
-                         END_FUTILITY_RATE,
-                         score / X6_LEVEL_SCORE);
+    next_futility = ulMin(END_FUTILITY_RATE,
+                          LERP(START_FUTILITY_RATE,
+                               END_FUTILITY_RATE,
+                               score / X6_LEVEL_SCORE));
 
     rules = &LevelRules::RULES[0];
 
@@ -81,12 +83,16 @@ void Game::update() {
 
     if(ul_keys.pressed.start)
     {
-        //paused = !paused;
+        paused = !paused;
         //ufos->push_back(new UFO(this));
-        spinners->push_back(new Spinner(this));
+        //spinners->push_back(new Spinner(this));
         //missiles->push_back(new Missile(this));
         //SFX::spinner_start();
     }
+
+    if(ul_keys.pressed.R)
+        updateScore(1000);
+        
 
     if(paused)
         return;
@@ -153,9 +159,10 @@ void Game::update() {
     if(next_futility <= 0)
     {
         SFX::futility();
-        next_futility = LERP(START_FUTILITY_RATE,
-                             END_FUTILITY_RATE,
-                             score / X6_LEVEL_SCORE);
+        next_futility = ulMax(END_FUTILITY_RATE,
+                              LERP(START_FUTILITY_RATE,
+                                   END_FUTILITY_RATE,
+                                   score / X6_LEVEL_SCORE));
     }
     next_futility -= FRAME_LENGTH_MS;
 
@@ -334,8 +341,8 @@ void Game::draw() {
     //ulDrawLine(RIGHT_WALL*2, 0, RIGHT_WALL*2, CEILING*2, RGB15(31,0,0));
 		
 	//Wait the VBlank (synchronize at 60 fps)
-	//ulSyncFrame();
-    swiWaitForVBlank();
+	ulSyncFrame();
+    //swiWaitForVBlank();
     ulResetScreenView();
 }
 
@@ -412,14 +419,24 @@ void Game::death() {
         ulDrawImageXY( bgImg, 0, 0 );
 
         ulEndDrawing();
-        //ulSyncFrame();
-        swiWaitForVBlank();
+        ulSyncFrame();
+        //swiWaitForVBlank();
         ++frameCount;
     }
     ulResetScreenView();
 }
 
 void Game::mainLoop() {
+    consoleDemoInit();
+
+/*
+    while(1)
+    {
+        //swiWaitForVBlank();
+        ulReadKeys(0);
+        if(ul_keys.pressed.start) break;
+    }
+*/
 
     //To avoid a divide by zero the first time
 	totalTime = 1;
@@ -432,6 +449,22 @@ void Game::mainLoop() {
 
         update();
         draw();
+        #define DEBUG
+        #ifdef DEBUG
+        iprintf("\x1b[0;0H                  ");
+        iprintf("\x1b[1;0H                  ");
+        iprintf("\x1b[2;0H                  ");
+        iprintf("\x1b[3;0H                  ");
+        iprintf("\x1b[4;0H                  ");
+        iprintf("\x1b[5;0H                  ");
+		iprintf("\x1b[0;0Hfutility_h = %d", SFX::futility_h);
+		iprintf("\x1b[1;0Hhit_h = %d", SFX::hit_h);
+		iprintf("\x1b[2;0Hspinner_h = %d", SFX::spinner_h);
+		iprintf("\x1b[3;0Hmissile_h = %d", SFX::missile_h);
+		iprintf("\x1b[4;0Hufo_h = %d", SFX::ufo_h);
+		iprintf("\x1b[5;0Hdeath_h = %d", SFX::death_h);
+        #endif
+
 		totalTime = TIMER1_DATA;
 	}
 }

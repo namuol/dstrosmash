@@ -3,6 +3,8 @@
 #include "Game.h"
 #include "ufo.h"
 
+#include "sfx.h"
+
 #include <ulib/ulib.h>
 
 #include <list>
@@ -19,6 +21,8 @@ UFO::UFO(Game *game)
 {
     img = loaded_img;
     next_shot = (int)((float)UFO_SHOT_RATE/game->speed_scale);
+    next_beep = (int)((float)UFO_BEEP_MS/game->speed_scale);
+    beeping = false;
 
     if(RAND(2)==1){
         vx = game->getRules()->ufo_speed*game->speed_scale;
@@ -27,9 +31,12 @@ UFO::UFO(Game *game)
         vx = -game->getRules()->ufo_speed*game->speed_scale;
         x = RIGHT_WALL;
     }
+
+    SFX::ufo();
 }
 
 UFO::~UFO() {
+    SFX::ufo_stop();
     game->ufos->remove(this);
 }
 
@@ -61,6 +68,23 @@ void UFO::update() {
 
     x += vx;
     frame = ulAbs(UFO_FRAME_HEIGHT*((imgx/9)%UFO_FRAME_COUNT));
+
+    if(next_beep <= 0)
+    {
+        if(beeping)
+        {
+            SFX::ufo_beep_stop();
+            next_beep = UFO_BEEP_MS/game->speed_scale;
+        }
+        else
+        {
+            SFX::ufo_beep();
+            next_beep = UFO_DRONE_MS/game->speed_scale;
+        }
+        beeping = !beeping;
+    }
+    next_beep -= FRAME_LENGTH_MS;
+
 
     if(next_shot <= 0)
     {

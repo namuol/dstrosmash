@@ -45,7 +45,7 @@ Spinner::Spinner(Game *game)
 Spinner::~Spinner() {
     game->spinners->remove(this);
     if(game->spinners->size() == 0)
-        SFX::spinner_cancel();
+        SFX::spinner_stop();
 }
 
 void Spinner::update() {
@@ -129,3 +129,4 @@ void Spinner::loadImages() {
     if( loaded_img_big==NULL ) 
         loaded_img_big=ulLoadImageFilePNG((const char*)spinner_big, (int)spinner_big_size, UL_IN_VRAM, UL_PF_PAL4);
 }
+

@@ -20,8 +20,6 @@ int main() {
 
     srand(time(NULL));
 
-
-
     //Initialize uLibrary
     ulInit(UL_INIT_ALL);
     //Initialize the graphical part
@@ -33,15 +31,7 @@ int main() {
     ulSetFont(font);
 
     ulSetMainLcd(0);
-    //Show some splash screens!
-    //ulShowSplashScreen(1);
-    //ulShowSplashScreen(2);
-    //setGenericSound(    22050,    /* sample rate */
-    //                    127,    /* volume */
-    //                    64,        /* panning */
-    //                    0 );    /* sound format*/
-
- 
+     
     //Use bright pink as a transparent color
     ulSetTransparentColor(RGB15(31, 0, 31));
 
@@ -54,6 +44,7 @@ int main() {
 
     // Set up maxmod (SFX)
     mmInitDefaultMem( (mm_addr)soundbank_bin );
+    //mmSelectMode( MM_MODE_A );
 
     // Load some SFX:
     mmLoadEffect( SFX_DEATH1 );
@@ -71,12 +62,7 @@ int main() {
     mmLoadEffect( SFX_HIT1 );
     mmLoadEffect( SFX_MISSILE );
     mmLoadEffect( SFX_SPINNER );
-
-    mmLoad( MOD_MISSILE );
-    mmSetModuleVolume( 0 );
-    mmStart( MOD_MISSILE, MM_PLAY_LOOP );
-
-    mmLoad( MOD_SPINNER );
+    mmLoadEffect( SFX_UFO );
 
     game.mainLoop();
 

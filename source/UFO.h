@@ -9,10 +9,15 @@
 #define UFO_SHOT_RATE 600
 #define UFO_SHOT_SPEED 1.5
 
+#define UFO_BEEP_MS 100
+#define UFO_DRONE_MS 300
+
 class UFO : public Sprite {
 private:
     unsigned int frame;
     int next_shot;
+    int next_beep;
+    bool beeping;
 
 public:
     float vx;

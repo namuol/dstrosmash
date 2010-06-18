@@ -70,12 +70,12 @@
 #define X5_LEVEL_SCORE 50000
 #define X6_LEVEL_SCORE 100000
 
-#define STARTING_LIVES 4
+#define STARTING_LIVES 128
 #define ONE_UP_SCORE 3000 // Every one of these gets you +1 life.
 
 #define DEATH_FRAME_COUNT 130
 #define DEATH_SHAKE_AMT 10.0
-#define SHAKE_MAX 5.0
+#define SHAKE_MAX 0.0
 
 #define SHAKE_DECREASE 0.1
 #define ROCK_LAND_SHAKE 2.0

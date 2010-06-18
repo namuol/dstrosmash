@@ -31,7 +31,7 @@ Missile::Missile(Game *game)
 
 Missile::~Missile() {
     //SFX::missile_stop();
-    SFX::missile_beep_cancel();
+    SFX::missile_beep_stop();
     game->missiles->remove(this);
 }
 
@@ -122,7 +122,7 @@ void Missile::update() {
         next_beep = MISSILE_BEEP_MS/game->speed_scale;
     } else if(next_beep <= 0.5*MISSILE_BEEP_MS/game->speed_scale)
     {
-        SFX::missile_beep_cancel();
+        SFX::missile_beep_stop();
     }
     next_beep -= FRAME_LENGTH_MS;
 
