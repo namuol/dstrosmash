@@ -12,12 +12,12 @@
 #include "lg2.h"
 #include "lg3.h"
 
-#define MIN_ROCK_YSPEED 0.33
+#define MIN_ROCK_YSPEED 0.85
 #define MAX_ROCK_YSPEED 2.0
 #define MIN_ROCK_XSPEED 0
 #define MAX_ROCK_XSPEED 0.25
 #define ROCK_SPLIT_SPEED 0.25
-#define ROCK_SPLIT_PROBABILITY 0.75
+#define ROCK_SPLIT_PROBABILITY 0.5
 
 
 class Rock : public Sprite {

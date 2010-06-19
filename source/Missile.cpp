@@ -44,8 +44,8 @@ void Missile::update() {
         kill(LAND);
         return;
     }
-    if( MIDX(this) < LEFT_WALL ||
-        MIDX(this) > RIGHT_WALL ) {
+    if( RIGHT(this) < LEFT_WALL ||
+        LEFT(this) > RIGHT_WALL ) {
         kill(OUT_OF_BOUNDS);
         return;
     }

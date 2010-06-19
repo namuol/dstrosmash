@@ -9,6 +9,7 @@
 #include "LevelRules.h"
 #include "main.h"
 #include "bg.h" // The background image
+#include "intro_bg.h" // The background image for the intro screen
 
 #include <list>
 using namespace std;
@@ -28,19 +29,24 @@ const int Game::LEVEL_COLORS[] = {
 };
 
 UL_IMAGE * Game::bgImg = NULL;
+UL_IMAGE * Game::introBgImg = NULL;
 
 Game::Game() {
+    intro_progress = -1; 
+    next_intro_step = intro_step_length = 3000; 
+
     one_up_total = 0;
     score = score_display = 0;
     peak_score = 0;
     multiplyer = 1;
-    speed_scale = sqrt((float)multiplyer/(float)MAX_MULTIPLYER);
+    speed_scale = MIN_SPEED_SCALE + ulMin(MAX_SPEED_SCALE - MIN_SPEED_SCALE,
+                                          sqrt((float)score/(float)X6_LEVEL_SCORE));
     rules = &LevelRules::RULES[0];
-    
-    next_futility = ulMin(END_FUTILITY_RATE,
+    next_futility = 0;/*ulMax(END_FUTILITY_RATE,
                           LERP(START_FUTILITY_RATE,
                                END_FUTILITY_RATE,
-                               score / X6_LEVEL_SCORE));
+                               (speed_scale-MIN_SPEED_SCALE) / 
+                               (MAX_SPEED_SCALE-MIN_SPEED_SCALE)));*/
 
     rules = &LevelRules::RULES[0];
 
@@ -52,6 +58,8 @@ Game::Game() {
     shake_amt = 0.0;
     lives = STARTING_LIVES; 
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
+    bg_y_offset = -bgImg->sizeY+192;
+    introBgImg = ulLoadImageFilePNG((const char*)intro_bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL4);
     theMan = new Man(this, 32, FLOOR-MAN_HEIGHT);	
 
     shots = new list<Shot *>;
@@ -92,6 +100,9 @@ void Game::update() {
 
     if(ul_keys.pressed.R)
         updateScore(1000);
+
+    if(ul_keys.pressed.L)
+        missiles->push_back(new Missile(this));
         
 
     if(paused)
@@ -159,10 +170,12 @@ void Game::update() {
     if(next_futility <= 0)
     {
         SFX::futility();
+
         next_futility = ulMax(END_FUTILITY_RATE,
                               LERP(START_FUTILITY_RATE,
                                    END_FUTILITY_RATE,
-                                   score / X6_LEVEL_SCORE));
+                                   (speed_scale-MIN_SPEED_SCALE) / 
+                                   (MAX_SPEED_SCALE-MIN_SPEED_SCALE)));
     }
     next_futility -= FRAME_LENGTH_MS;
 
@@ -240,7 +253,96 @@ void Game::updateScore(int amount) {
         multiplyer = 0;
     }
 
-    speed_scale = sqrt((float)multiplyer/(float)MAX_MULTIPLYER);
+    speed_scale = MIN_SPEED_SCALE + ulMin(MAX_SPEED_SCALE - MIN_SPEED_SCALE,
+                                          sqrt((float)score/(float)X6_LEVEL_SCORE));
+}
+
+void Game::intro_update() {
+    ulReadKeys(0);
+    if(ul_keys.pressed.start)
+    {
+        if(intro_progress <= INTRO_STEP_COUNT-2)
+            intro_progress = INTRO_STEP_COUNT-1;
+        else
+            intro_progress = INTRO_STEP_COUNT;
+    }
+
+    if(intro_progress < INTRO_STEP_COUNT-2)
+    { 
+        if( next_intro_step <= 0)
+        {
+            SFX::futility();
+            next_intro_step = INTRO_STEP_RATE/((3.0+intro_progress)/(3.0+INTRO_STEP_COUNT-2));
+            intro_step_length = next_intro_step;
+            ++intro_progress;
+        }
+
+        next_intro_step -= FRAME_LENGTH_MS;
+    }
+    else if(intro_progress == INTRO_STEP_COUNT-2)
+    {
+        SFX::death();
+        shake_amt = DEATH_SHAKE_AMT*1.4;
+        ++intro_progress;
+    }
+}
+
+void Game::intro_draw() {
+    ulStartDrawing2D();
+
+    ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, BLACK);
+
+    if( shake_amt > 0.0 ) {
+        ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, RED);
+        SHAKE(shake_amt);
+        shake_amt -= SHAKE_DECREASE;
+    } else {
+        shake_amt = 0.0;
+    }
+
+    switch(intro_progress)
+    {
+    default:
+    case INTRO_STEP_COUNT-2:
+    case INTRO_STEP_COUNT-1:
+            if(shake_amt == 0)
+            {
+                ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, BROWN);
+                ulDrawImageXY( introBgImg, 0, 0 );
+                ulPrintf_xy(6, FLOOR/2+0,  "Namuol Presents");
+                ulPrintf_xy(6, FLOOR/2+72, "   (a remake)  ");
+                ulPrintf_xy(6, FLOOR/2+128,"Crap @ 2010 Nam");
+            }
+            ulPrintf_xy(6, FLOOR/2+48, "  DSTROSMASH!  ");
+        break;
+    case 16:ulPrintf_xy(6, FLOOR/2+64, "     UNIVERSE. ");
+    case 15:ulPrintf_xy(6, FLOOR/2+64, " THE           ");
+    case 14:ulPrintf_xy(6, FLOOR/2+48, "             OF");
+    case 13:ulPrintf_xy(6, FLOOR/2+48, "        ENCE   ");
+    case 12:ulPrintf_xy(6, FLOOR/2+48, "     FER       ");
+    case 11:ulPrintf_xy(6, FLOOR/2+48, "  DIF          ");
+    case 10:ulPrintf_xy(6, FLOOR/2+48, "IN             ");
+    case  9:ulPrintf_xy(6, FLOOR/2+32, "             ED");
+    case  8:ulPrintf_xy(6, FLOOR/2+32, "          JAD  ");
+    case  7:ulPrintf_xy(6, FLOOR/2+32, "      THE      ");
+    case  6:ulPrintf_xy(6, FLOOR/2+32, " FROM          ");
+    case  5:ulPrintf_xy(6, FLOOR/2+16, "           SELF");
+    case  4:ulPrintf_xy(6, FLOOR/2+16, "       YOUR    ");
+    case  3:ulPrintf_xy(6, FLOOR/2+16, "  FEND         ");
+    case  2:ulPrintf_xy(6, FLOOR/2+16, "DE             ");
+    case  1:
+    case  0:
+    case -1:
+        ulDrawImageXY( bgImg, 0,
+                            (int)(LERP((bg_y_offset)/(INTRO_STEP_COUNT-1),0,
+                            ((float)next_intro_step-(float)intro_step_length) / 
+                                (float)intro_step_length) +
+                            LERP(0,(bg_y_offset),(float)(intro_progress)/(float)(INTRO_STEP_COUNT-1))));
+        break;
+    }
+    ulEndDrawing(); 
+    swiWaitForVBlank();
+    ulResetScreenView();
 }
 
 void Game::draw() {
@@ -261,7 +363,7 @@ void Game::draw() {
     } else {
         shake_amt = 0.0;
     }
-    ulDrawImageXY( bgImg, 0, 0 );
+    ulDrawImageXY( bgImg, 0, bg_y_offset );
 
 
     // Draw all the shots:
@@ -341,8 +443,8 @@ void Game::draw() {
     //ulDrawLine(RIGHT_WALL*2, 0, RIGHT_WALL*2, CEILING*2, RGB15(31,0,0));
 		
 	//Wait the VBlank (synchronize at 60 fps)
-	ulSyncFrame();
-    //swiWaitForVBlank();
+	//ulSyncFrame();
+    swiWaitForVBlank();
     ulResetScreenView();
 }
 
@@ -416,11 +518,11 @@ void Game::death() {
         // First draw background
         ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, RED);
         SHAKE(DEATH_SHAKE_AMT*(float)(DEATH_FRAME_COUNT-frameCount)/DEATH_FRAME_COUNT);
-        ulDrawImageXY( bgImg, 0, 0 );
+        ulDrawImageXY( bgImg, 0, bg_y_offset );
 
         ulEndDrawing();
-        ulSyncFrame();
-        //swiWaitForVBlank();
+        //ulSyncFrame();
+        swiWaitForVBlank();
         ++frameCount;
     }
     ulResetScreenView();
@@ -429,14 +531,11 @@ void Game::death() {
 void Game::mainLoop() {
     consoleDemoInit();
 
-/*
-    while(1)
+    while(intro_progress < INTRO_STEP_COUNT)
     {
-        //swiWaitForVBlank();
-        ulReadKeys(0);
-        if(ul_keys.pressed.start) break;
+        intro_update();
+        intro_draw();
     }
-*/
 
     //To avoid a divide by zero the first time
 	totalTime = 1;
@@ -449,7 +548,7 @@ void Game::mainLoop() {
 
         update();
         draw();
-        #define DEBUG
+        //#define DEBUG
         #ifdef DEBUG
         iprintf("\x1b[0;0H                  ");
         iprintf("\x1b[1;0H                  ");

@@ -8,6 +8,9 @@
 #define MAN_SPEED 2
 #define MAX_SHOTS 2
 
+#define MIN_SPEED_SCALE 0.3
+#define MAX_SPEED_SCALE 1.0
+
 #define BIG_ROCK_SHOT_SCORE 10
 #define SMALL_ROCK_SHOT_SCORE 20
 #define BIG_SPINNER_SHOT_SCORE 40
@@ -70,8 +73,8 @@
 #define X5_LEVEL_SCORE 50000
 #define X6_LEVEL_SCORE 100000
 
-#define STARTING_LIVES 128
-#define ONE_UP_SCORE 3000 // Every one of these gets you +1 life.
+#define STARTING_LIVES 2
+#define ONE_UP_SCORE 6000 // Every one of these gets you +1 life.
 
 #define DEATH_FRAME_COUNT 130
 #define DEATH_SHAKE_AMT 10.0
@@ -82,6 +85,9 @@
 
 #define START_FUTILITY_RATE 800
 #define END_FUTILITY_RATE 400
+
+#define INTRO_STEP_RATE 300
+#define INTRO_STEP_COUNT 19
 
 #include <ctime>
 #include <cstdlib>
@@ -106,6 +112,9 @@ private:
     static const int LEVEL_COLORS[];
     int totalTime;
 	static UL_IMAGE *bgImg;
+	static UL_IMAGE *introBgImg;
+    void intro_update();
+    void intro_draw();
     void update();
     void draw();
     int lives;
@@ -120,6 +129,11 @@ private:
     int next_ufo;
 
     int next_futility;
+    
+    int intro_progress;
+    int next_intro_step;
+    int intro_step_length;
+    int bg_y_offset;
 
     bool paused;
 

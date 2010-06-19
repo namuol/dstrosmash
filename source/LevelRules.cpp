@@ -95,7 +95,7 @@ static LevelRules X4_RULES = {
     2000,   // min_ufo_rest
     15000,  // max_ufo_rest
     
-    0.5,    // ufo_speed
+    0.75,    // ufo_speed
 
     false   // allow_missile_while_ufo
 };
@@ -120,7 +120,7 @@ static LevelRules X5_RULES = {
     2000,   // min_ufo_rest
     15000,  // max_ufo_rest
     
-    0.5,    // ufo_speed
+    0.75,    // ufo_speed
 
     false   // allow_missile_while_ufo
 };
@@ -145,7 +145,7 @@ static LevelRules X6_RULES = {
     2000,   // min_ufo_rest
     15000,  // max_ufo_rest
     
-    0.5,    // ufo_speed
+    0.85,    // ufo_speed
 
     false   // allow_missile_while_ufo
 };
