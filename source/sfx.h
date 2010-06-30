@@ -13,6 +13,9 @@ struct SFX {
     #define HIT_FX_COUNT 1
     static const unsigned int HIT[];
 
+    static void init();
+    static void deinit();
+
     static void update();
 
     static void futility();
@@ -30,12 +33,18 @@ struct SFX {
     static void ufo_beep();
     static void ufo_beep_stop();
 
+    static void hyper();
+
+    static void mute();
+    static void unmute();
+
     static mm_sfxhand futility_h;
     static mm_sfxhand death_h;
     static mm_sfxhand hit_h;
     static mm_sfxhand missile_h;
     static mm_sfxhand spinner_h;
     static mm_sfxhand ufo_h;
+    static mm_sfxhand hyper_h;
 
     static mm_sound_effect futility_sf;
     static mm_sound_effect death_sf;
@@ -43,6 +52,7 @@ struct SFX {
     static mm_sound_effect missile_sf;
     static mm_sound_effect spinner_sf;
     static mm_sound_effect ufo_sf;
+    static mm_sound_effect hyper_sf;
 
     static bool muted;
 };

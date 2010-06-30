@@ -1,22 +1,21 @@
-//Our main file
 #include "util.h"
 
 #include <list>
 using namespace std;
 
 #include "math.h"
-//Class definition
 #include "Game.h"
 #include "ufo_shot.h"
 
 UL_IMAGE *UFOShot::image = NULL;
 
-UFOShot::UFOShot(Game* game, const UFO* parent) 
-: Sprite(game,
-         image, 
-         parent->x+parent->w/4, 
-         parent->y+parent->h/4)
+void UFOShot::init(int id, const UFO* parent) 
 {
+    Sprite::init(id,
+           image, 
+           parent->x+parent->w/4, 
+           parent->y+parent->h/4);
+
     vy = 1.0;
     vx = ((x-game->theMan->x)*vy)/(y-game->theMan->y);
     
@@ -25,11 +24,6 @@ UFOShot::UFOShot(Game* game, const UFO* parent)
     vy /= s;
     vx *= game->speed_scale*UFO_SHOT_SPEED;
     vy *= game->speed_scale*UFO_SHOT_SPEED;
-}
-
-//Destructor
-UFOShot::~UFOShot() {
-    game->ufo_shots->remove(this);
 }
 
 void UFOShot::update() {
@@ -45,20 +39,20 @@ void UFOShot::update() {
         return;
     }
 
-    list<Shot *>::iterator s;
-    list<Shot *> tmpShots( *game->shots ); 
-    for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
-        if(COLTEST(this, (*s)) ) {
-            delete (*s);
+    for(int i=0; i<game->shots.capacity(); ++i) {
+        if(game->shots.active(i) && 
+           COLTEST(this, &game->shots[i]) ) {
+            game->shots.rem(i);
+            game->shots[i].deinit();
             kill(SHOT);
             return;
         }
     }
 
-    list<Explosion *>::iterator e;
-    list<Explosion *> tmpExplosions( *game->explosions ); 
-    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
-        if(COLTEST(this, (*e)) ) {
+
+    for(int i=0; i<game->explosions.capacity(); ++i) {
+        if(game->explosions.active(i) &&
+            COLTEST(this, &(game->explosions[i])) ) {
             kill(EXPLODED);
             return;
         }
@@ -80,13 +74,18 @@ void UFOShot::kill(DeathType deathType) {
             // TODO: Score? Need to do my research as the manual doesnt say anything.
             //game->shake_amt += ROCK_LAND_SHAKE;
         case OUT_OF_BOUNDS:
-            delete this;
+            game->ufo_shots.rem(id);
+            deinit();
             break;
         case SHOT:
         case EXPLODED:
-            game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
-            //playGenericSound((void *)smash, (u32)smash_size);
-            delete this;
+            int eid;
+            eid = game->explosions.add();
+            if(eid >= 0) {
+                game->explosions[eid].init(eid, x+w/2, y+h/2);
+            }
+            game->ufo_shots.rem(id);
+            deinit();
             break;
         default:;
     }

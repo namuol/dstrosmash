@@ -1,6 +1,9 @@
+#include <nds/ndstypes.h>
+
 #include "sfx.h"
 #include "util.h"
 #include "soundbank.h"
+#include "soundbank_bin.h"
 
 const unsigned int SFX::FUTILITY[] = {
     SFX_FUTILITY1,
@@ -30,6 +33,7 @@ mm_sfxhand SFX::hit_h = 3;
 mm_sfxhand SFX::missile_h = 4;
 mm_sfxhand SFX::spinner_h = 5; 
 mm_sfxhand SFX::ufo_h = 6;
+mm_sfxhand SFX::hyper_h = 7;
 
 mm_sound_effect SFX::futility_sf = {
     {FUTILITY[RAND(FUTILITY_FX_COUNT)]},
@@ -79,8 +83,65 @@ mm_sound_effect SFX::ufo_sf = {
     127
 };
 
+mm_sound_effect SFX::hyper_sf = {
+    {SFX_HYPER},
+    1024,
+    hyper_h,
+    127,
+    127
+};
+
+
 float SFX::spinner_min_pitch = 2.0;
 bool SFX::muted = false;
+
+void SFX::init() {
+    // Set up maxmod (SFX)
+    mmInitDefaultMem( (mm_addr)soundbank_bin );
+    //mmSelectMode( MM_MODE_A );
+
+    // Load some SFX:
+    mmLoadEffect( SFX_DEATH1 );
+    mmLoadEffect( SFX_DEATH2 );
+    mmLoadEffect( SFX_DEATH3 );
+    mmLoadEffect( SFX_DEATH4 );
+    mmLoadEffect( SFX_DEATH5 );
+    mmLoadEffect( SFX_DEATH6 );
+    mmLoadEffect( SFX_DEATH7 );
+    mmLoadEffect( SFX_FUTILITY1 );
+    mmLoadEffect( SFX_FUTILITY2 );
+    mmLoadEffect( SFX_FUTILITY3 );
+    mmLoadEffect( SFX_FUTILITY4 );
+    mmLoadEffect( SFX_FUTILITY5 );
+    mmLoadEffect( SFX_HIT1 );
+    mmLoadEffect( SFX_MISSILE );
+    mmLoadEffect( SFX_SPINNER );
+    mmLoadEffect( SFX_UFO );
+    mmLoadEffect( SFX_HYPER ); 
+}
+
+void SFX::deinit() {
+    mmStop();
+    mmEffectCancelAll();
+    // Unload all the SFX
+    mmUnloadEffect( SFX_DEATH1 );
+    mmUnloadEffect( SFX_DEATH2 );
+    mmUnloadEffect( SFX_DEATH3 );
+    mmUnloadEffect( SFX_DEATH4 );
+    mmUnloadEffect( SFX_DEATH5 );
+    mmUnloadEffect( SFX_DEATH6 );
+    mmUnloadEffect( SFX_DEATH7 );
+    mmUnloadEffect( SFX_FUTILITY1 );
+    mmUnloadEffect( SFX_FUTILITY2 );
+    mmUnloadEffect( SFX_FUTILITY3 );
+    mmUnloadEffect( SFX_FUTILITY4 );
+    mmUnloadEffect( SFX_FUTILITY5 );
+    mmUnloadEffect( SFX_HIT1 );
+    mmUnloadEffect( SFX_MISSILE );
+    mmUnloadEffect( SFX_SPINNER );
+    mmUnloadEffect( SFX_UFO );
+    mmUnloadEffect( SFX_HYPER ); 
+}
 
 void SFX::update() {
     spinner_min_pitch = 2.0;
@@ -129,6 +190,7 @@ void SFX::missile_beep() {
 
 // Stops a single missile beep.
 void SFX::missile_beep_stop() {
+    if(muted) return;
     mmEffectCancel(missile_h);
     //mmEffectRelease(missile_h);
 }
@@ -148,12 +210,14 @@ void SFX::spinner(float pitch) {
 }
 
 void SFX::spinner_stop() {
+    if(muted) return;
     mmEffectCancel(spinner_h);
     //mmEffectRelease(spinner_h);
     spinner_min_pitch = 2.0;
 }
 
 void SFX::ufo() {
+    if(muted) return;
     mmEffectCancel(ufo_h);
     //mmEffectRelease(ufo_h);
     ufo_sf.handle = ufo_h;
@@ -162,15 +226,40 @@ void SFX::ufo() {
 }
 
 void SFX::ufo_stop() {
+    if(muted) return;
     mmEffectCancel(ufo_h);
     //mmEffectRelease(ufo_h);
 }
 
 void SFX::ufo_beep() {
-    mmEffectVolume(ufo_h,255);
+    if(muted) return;
+    ufo_sf.handle = ufo_h;
+    ufo_sf.volume = 255;
+    ufo_h = mmEffectEx( &ufo_sf );
+    //mmEffectVolume(ufo_h,255);
 }
 
 void SFX::ufo_beep_stop() {
-    mmEffectVolume(ufo_h,64);
+    if(muted) return;
+    ufo_sf.handle = ufo_h;
+    ufo_sf.volume = 64;
+    ufo_h = mmEffectEx( &ufo_sf );
+    //mmEffectVolume(ufo_h,64);
 }
+
+void SFX::hyper() {
+    if(muted) return;
+    hyper_sf.handle = hyper_h;
+    hyper_h = mmEffectEx( &hyper_sf );
+}
+
+void SFX::mute() {
+    mmEffectCancelAll();
+    muted = true;
+}
+
+void SFX::unmute() {
+    muted = false;
+}
+
 

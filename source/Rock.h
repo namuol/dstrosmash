@@ -32,9 +32,9 @@ public:
     int rock_num;
     static UL_IMAGE *images[NUM_ROCK_IMAGES];
     static void loadImages();
-    Rock(Game *game, Rock *parent, int num, int rock_num);
-    ~Rock();
    
+    void init(int id, Rock *parent, int num, int rock_num);
+
     void update();
     void draw();
     void kill(DeathType deathType);

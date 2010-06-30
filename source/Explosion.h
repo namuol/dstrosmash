@@ -13,9 +13,7 @@ private:
     int frame_count;
 
 public:
-    Explosion(Game *game, float x, float y);
-    ~Explosion();
-
+    void init(int id, float x, float y);
     void update();
     void draw();
 };

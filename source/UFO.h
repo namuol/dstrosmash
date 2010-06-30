@@ -23,10 +23,10 @@ public:
     float vx;
     static UL_IMAGE* loaded_img;
     static void loadImages();
+    
+    void init(int id);
+    void deinit();
 
-    UFO(Game *game);
-    ~UFO();
-   
     void update();
     void draw();
     void shoot();

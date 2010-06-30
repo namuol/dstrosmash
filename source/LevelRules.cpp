@@ -36,7 +36,7 @@ static LevelRules X2_RULES = {
     3000,   // max_rock_rest
     
     2,      // max_spinner_spawn
-    1000,   // min_spinner_rest
+    1500,   // min_spinner_rest
     12000,  // max_spinner_rest
 
     10000,  // min_missile_rest
@@ -61,8 +61,8 @@ static LevelRules X3_RULES = {
     2200,   // max_rock_rest
     
     3,      // max_spinner_spawn
-    500,    // min_spinner_rest
-    8500,   // max_spinner_rest
+    1000,   // min_spinner_rest
+    12000,  // max_spinner_rest
 
     8000,   // min_missile_rest
     30000,  // max_missile_rest
@@ -86,8 +86,8 @@ static LevelRules X4_RULES = {
     1800,   // max_rock_rest
     
     3,      // max_spinner_spawn
-    250,    // min_spinner_rest
-    6500,   // max_spinner_rest
+    500,    // min_spinner_rest
+    12000,  // max_spinner_rest
 
     8000,   // min_missile_rest
     30000,  // max_missile_rest
@@ -111,8 +111,8 @@ static LevelRules X5_RULES = {
     1000,   // max_rock_rest
     
     3,      // max_spinner_spawn
-    100,    // min_spinner_rest
-    5000,   // max_spinner_rest
+    250,    // min_spinner_rest
+    12000,  // max_spinner_rest
 
     8000,   // min_missile_rest
     30000,  // max_missile_rest
@@ -137,7 +137,7 @@ static LevelRules X6_RULES = {
     
     4,      // max_spinner_spawn
     0,      // min_spinner_rest
-    4000,   // max_spinner_rest
+    12000,  // max_spinner_rest
 
     8000,   // min_missile_rest
     20000,  // max_missile_rest

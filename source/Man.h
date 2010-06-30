@@ -7,12 +7,17 @@
 #define MAN_WIDTH 7
 
 class Man : public Sprite {
+    int next_shot;
+    bool auto_fire;
+    int hyper_charge;
+
 public:
-    Man(Game *game, float x, float y);
+    Man(float x, float y);
     ~Man();
    
     void update();
     void shoot();
+    void hyper();
 };
 
 #endif

@@ -19,6 +19,7 @@ private:
     int next_beep;
     int frame;
     bool blinking;
+    bool offscreen;
 
 public:
     float speed;
@@ -26,10 +27,10 @@ public:
     float vx, vy;
     static UL_IMAGE* loaded_img;
     static void loadImages();
+    
+    void init(int id);
+    void deinit();
 
-    Missile(Game *game);
-    ~Missile();
-   
     void update();
     void draw();
     void kill(DeathType deathType);

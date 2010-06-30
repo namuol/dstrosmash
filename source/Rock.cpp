@@ -1,11 +1,9 @@
-//Our main file
 #include "util.h"
 
 #include <list>
 using namespace std;
 
 #include "math.h"
-//Class definition
 #include "Game.h"
 #include "Shot.h"
 #include "Explosion.h"
@@ -13,7 +11,6 @@ using namespace std;
 #include "lg1.h"
 
 #include "sfx.h"
-
 
 // NOTE: The first half of the rock images MUST be small rocks.
 UL_IMAGE *Rock::images[NUM_ROCK_IMAGES];
@@ -75,13 +72,15 @@ const int *Rock::ROCK_COLORS[] = {
     X6_ROCK_COLORS
 };
 
+
 // Constructor
-Rock::Rock(Game *game, Rock *parent, int num, int rock_num) 
-: Sprite(game,
-         images[rock_num], 
-         parent ? parent->x + (parent->img->sizeX/4) - images[rock_num]->sizeX/4 : RAND(RIGHT_WALL), 
-         parent ? parent->y : 0 )
+void Rock::init(int id, Rock *parent, int num, int rock_num) 
 {
+    Sprite::init(id,
+                 images[rock_num], 
+                 parent ? parent->x + (parent->img->sizeX/4) - images[rock_num]->sizeX/4 : RAND(RIGHT_WALL), 
+                 parent ? parent->y : 0);
+
     this->rock_num = rock_num;
     is_big = rock_num >= 3;
 
@@ -103,11 +102,8 @@ Rock::Rock(Game *game, Rock *parent, int num, int rock_num)
         vx *= RAND(2) ? -1 : 1; // Reverse the direction 1/2 the time.
     }
     flipped = vx < 0;
-}
 
-//Destructor
-Rock::~Rock() {
-    game->rocks->remove(this);
+    update();
 }
 
 void Rock::update() {
@@ -123,20 +119,30 @@ void Rock::update() {
         return;
     }
 
-    list<Shot *>::iterator s;
-    list<Shot *> tmpShots( *game->shots ); 
-    for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
-        if(COLTEST(this, (*s)) ) {
-            delete (*s);
+    for(int i=0; i<game->shots.capacity(); ++i) {
+        if(game->shots.active(i) && 
+           COLTEST(this, &game->shots[i]) ) {
+            game->shots.rem(i);
+            game->shots[i].deinit();
             kill(SHOT);
             return;
         }
     }
 
-    list<Explosion *>::iterator e;
-    list<Explosion *> tmpExplosions( *game->explosions ); 
-    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
-        if(COLTEST(this, (*e)) ) {
+    for(int i=0; i<game->ufo_shots.capacity(); ++i) {
+        if(game->ufo_shots.active(i) && 
+           COLTEST(this, &game->ufo_shots[i]) ) {
+            game->ufo_shots.rem(i);
+            game->ufo_shots[i].deinit();
+            kill(SHOT);
+            return;
+        }
+    }
+
+
+    for(int i=0; i<game->explosions.capacity(); ++i) {
+        if(game->explosions.active(i) &&
+            COLTEST(this, &(game->explosions[i])) ) {
             kill(EXPLODED);
             return;
         }
@@ -164,25 +170,36 @@ void Rock::kill(DeathType deathType) {
                 game->updateScore(SMALL_ROCK_LAND_SCORE);
             game->shake_amt += ROCK_LAND_SHAKE;
         case OUT_OF_BOUNDS:
-            delete this;
+            game->rocks.rem(id);
+            deinit();
             break;
 
         case SHOT:
             if( is_big && (float)rand()/RAND_MAX < ROCK_SPLIT_PROBABILITY ){
+                int id1, id2;
                 SFX::hit();
                 rockNum = RAND(NUM_ROCK_IMAGES/2);
-                game->rocks->push_back(new Rock(game, this, 0, rockNum) );
-                game->rocks->push_back(new Rock(game, this, 1, rockNum) );
+                id1 = game->rocks.add();
+                id2 = game->rocks.add();
+                game->rocks[id1].init(id1, this, 0, rockNum);
+                game->rocks[id2].init(id2, this, 1, rockNum);
+
             } else {
         case EXPLODED: // Yes, you can put case GOTOs inside conditional blocks. 
-                game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
+                int id;
+                id = game->explosions.add();
+                if(id >= 0) {
+                    game->explosions[id].init(id, x+w/2, y+h/2);
+                }
+
             }
             if( is_big )
                 game->updateScore(BIG_ROCK_SHOT_SCORE);
             else
                 game->updateScore(SMALL_ROCK_SHOT_SCORE);
 
-            delete this;
+            game->rocks.rem(id);
+            deinit();
             break;
 
         default:

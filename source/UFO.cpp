@@ -12,13 +12,13 @@ using namespace std;
 
 UL_IMAGE* UFO::loaded_img = NULL;
 
-UFO::UFO(Game *game)
-: Sprite(game, 
-         0, 
-         RAND_RANGE(UFO_FRAME_HEIGHT/2,CEILING+(FLOOR/2)),
-         UFO_FRAME_WIDTH/2,
-         UFO_FRAME_HEIGHT/2)
+void UFO::init(int id)
 {
+    Sprite::init(id, 
+           0, 
+           RAND_RANGE(UFO_FRAME_HEIGHT/2,CEILING+(FLOOR/2)),
+           UFO_FRAME_WIDTH/2,
+           UFO_FRAME_HEIGHT/2);
     img = loaded_img;
     next_shot = (int)((float)UFO_SHOT_RATE/game->speed_scale);
     next_beep = (int)((float)UFO_BEEP_MS/game->speed_scale);
@@ -33,11 +33,11 @@ UFO::UFO(Game *game)
     }
 
     SFX::ufo();
+    update();
 }
 
-UFO::~UFO() {
+void UFO::deinit() {
     SFX::ufo_stop();
-    game->ufos->remove(this);
 }
 
 void UFO::update() {
@@ -47,21 +47,12 @@ void UFO::update() {
         return;
     }
 
-    list<Shot *>::iterator s;
-    list<Shot *> tmpShots( *game->shots ); 
-    for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
-        if(COLTEST(this, (*s)) ) {
-            delete (*s);
+    for(int i=0; i<game->shots.capacity(); ++i) {
+        if(game->shots.active(i) && 
+           COLTEST(this, &(game->shots[i])) ) {
+            game->shots.rem(i);
+            game->shots[i].deinit();
             kill(SHOT);
-            return;
-        }
-    }
-
-    list<Explosion *>::iterator e;
-    list<Explosion *> tmpExplosions( *game->explosions ); 
-    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
-        if(COLTEST(this, (*e)) ) {
-            kill(EXPLODED);
             return;
         }
     }
@@ -102,21 +93,30 @@ void UFO::draw() {
 }
 
 void UFO::shoot() {
-    game->ufo_shots->push_back(new UFOShot(game,this)); 
+    int sid = game->ufo_shots.add();
+    if(sid >= 0)
+        game->ufo_shots[sid].init(sid, this);
     next_shot = (int)((float)UFO_SHOT_RATE/game->speed_scale);
 }
 
 void UFO::kill(DeathType deathType) {
     switch( deathType ) {
         case OUT_OF_BOUNDS:
-            delete this;
+            game->ufos.rem(id);
+            deinit();
             break;
         case SHOT:
         case EXPLODED:
-            game->explosions->push_back(new Explosion(game, x+w/2, y+h/2) );
+            int eid;
+            eid = game->explosions.add();
+            if(eid >= 0) {
+                game->explosions[eid].init(eid, x+w/2, y+h/2);
+            }
+
             game->updateScore(UFO_SHOT_SCORE);
 
-            delete this;
+            game->ufos.rem(id);
+            deinit();
             break;
         default:;
     }

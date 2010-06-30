@@ -4,15 +4,12 @@
 #include "Shot.h"
 #include "Game.h"
 
-//Constructor
-Shot::Shot(Game *game) 
-: Sprite( game, round(game->theMan->x)+MAN_WIDTH/2, game->theMan->y, SHOT_WIDTH, SHOT_HEIGHT )
-{
-}
-
-//Destructor
-Shot::~Shot() {
-    game->shots->remove(this);
+void Shot::init(int id) {
+    Sprite::init(id,
+                 round(Game::inst()->theMan->x)+MAN_WIDTH/2,
+                 Game::inst()->theMan->y,
+                 SHOT_WIDTH,
+                 SHOT_HEIGHT);
 }
 
 void Shot::update() {
@@ -20,7 +17,8 @@ void Shot::update() {
     if( y > CEILING-SHOT_HEIGHT ) {
         y += SHOT_SPEED;
     } else {
-        delete this;
+        Game::inst()->shots.rem(id);
+        Game::inst()->shots[id].deinit();
         return;
     }
     

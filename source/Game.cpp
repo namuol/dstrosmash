@@ -17,6 +17,39 @@ using namespace std;
 #include "soundbank.h"
 #include "sfx.h"
 
+#define DEBUG
+#ifdef DEBUG
+#define print_debug_info() \
+    iprintf("\x1b[0;0H                  ");\
+    iprintf("\x1b[1;0H                  ");\
+    iprintf("\x1b[2;0H                  ");\
+    iprintf("\x1b[3;0H                  ");\
+    iprintf("\x1b[4;0H                  ");\
+    iprintf("\x1b[5;0H                  ");\
+    iprintf("\x1b[6;0H                  ");\
+    iprintf("\x1b[7;0H                  ");\
+    iprintf("\x1b[8;0H                  ");\
+    iprintf("\x1b[9;0H                  ");\
+    iprintf("\x1b[10;0H                  ");\
+    iprintf("\x1b[11;0H                  ");\
+    iprintf("\x1b[0;0Hfutility_h = %d", SFX::futility_h);\
+    iprintf("\x1b[1;0Hhit_h = %d", SFX::hit_h);\
+    iprintf("\x1b[2;0Hspinner_h = %d", SFX::spinner_h);\
+    iprintf("\x1b[3;0Hmissile_h = %d", SFX::missile_h);\
+    iprintf("\x1b[4;0Hufo_h = %d", SFX::ufo_h);\
+    iprintf("\x1b[5;0Hdeath_h = %d", SFX::death_h);\
+    iprintf("\x1b[6;0Hsprite_count = %d", sprite_count);\
+    iprintf("\x1b[7;0Hrocks.size() = %d", rocks.size());\
+    iprintf("\x1b[10;0Hmissiles.size() = %d", missiles.size());\
+    iprintf("\x1b[11;0Hspinners.size() = %d", spinners.size());
+    //iprintf("\x1b[11;0Hufos.size() = %d", ufos.size());
+    //iprintf("\x1b[8;0Hshots.size() = %d", shots.size());
+#else
+#define print_debug_info() 
+#endif
+
+Game* Game::_inst = NULL;
+
 // The background color for each level
 const int Game::LEVEL_COLORS[] = {
     RED,   // Game Over
@@ -32,6 +65,19 @@ UL_IMAGE * Game::bgImg = NULL;
 UL_IMAGE * Game::introBgImg = NULL;
 
 Game::Game() {
+    bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
+    introBgImg = ulLoadImageFilePNG((const char*)intro_bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL4);
+    theMan = new Man(RIGHT_WALL/2, FLOOR-MAN_HEIGHT);	
+}
+
+Game::~Game() {
+    delete theMan;
+    delete bgImg;
+}
+
+void Game::init() {
+    theMan->x = RIGHT_WALL/2;
+    sprite_count = 0;
     intro_progress = -1; 
     next_intro_step = intro_step_length = 3000; 
 
@@ -42,11 +88,7 @@ Game::Game() {
     speed_scale = MIN_SPEED_SCALE + ulMin(MAX_SPEED_SCALE - MIN_SPEED_SCALE,
                                           sqrt((float)score/(float)X6_LEVEL_SCORE));
     rules = &LevelRules::RULES[0];
-    next_futility = 0;/*ulMax(END_FUTILITY_RATE,
-                          LERP(START_FUTILITY_RATE,
-                               END_FUTILITY_RATE,
-                               (speed_scale-MIN_SPEED_SCALE) / 
-                               (MAX_SPEED_SCALE-MIN_SPEED_SCALE)));*/
+    next_futility = 0;
 
     rules = &LevelRules::RULES[0];
 
@@ -57,53 +99,49 @@ Game::Game() {
 
     shake_amt = 0.0;
     lives = STARTING_LIVES; 
-    bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
     bg_y_offset = -bgImg->sizeY+192;
-    introBgImg = ulLoadImageFilePNG((const char*)intro_bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL4);
-    theMan = new Man(this, 32, FLOOR-MAN_HEIGHT);	
 
-    shots = new list<Shot *>;
-    rocks = new list<Rock *>;
-    explosions = new list<Explosion *>;
-    spinners = new list<Spinner *>;
-    missiles = new list<Missile *>;
-    ufos = new list<UFO *>;
-    ufo_shots = new list<UFOShot *>;
-    
     paused = false;
+    done = false;
+    just_died = false;
+
+    rocks.deinit_clear();
+    spinners.deinit_clear();
+    missiles.deinit_clear();
+    ufos.deinit_clear();
+    ufo_shots.deinit_clear();
+    debris.deinit_clear();
+
+    SFX::unmute();
 }
 
-Game::~Game() {
-    delete theMan;
-    delete bgImg;
-    delete shots;
-    delete rocks;
-    delete explosions;
-    delete spinners;
-    delete ufos;
-    delete ufo_shots;
-    delete missiles;
+Game* Game::inst() {
+    if(_inst==NULL)
+        _inst = new Game();
+    return _inst;
 }
 
 void Game::update() {
 	//Read keys
 	ulReadKeys(0);
 
-    if(ul_keys.pressed.start)
-    {
+    if(lives < 0) { // If GAME OVER
+        if(ul_keys.pressed.start)
+            done=true;
+    } else if(ul_keys.pressed.start) {
         paused = !paused;
-        //ufos->push_back(new UFO(this));
-        //spinners->push_back(new Spinner(this));
-        //missiles->push_back(new Missile(this));
-        //SFX::spinner_start();
     }
+
+    just_died = false; // Reset the flag.
 
     if(ul_keys.pressed.R)
         updateScore(1000);
 
     if(ul_keys.pressed.L)
-        missiles->push_back(new Missile(this));
-        
+    {
+        int id = missiles.add();
+        missiles[id].init(id);
+    }
 
     if(paused)
         return;
@@ -112,57 +150,34 @@ void Game::update() {
     {
         theMan->update();
 
-        //  We need to use a temporary list to prevent invalidating the 
-        //  iterator when deleting a shot that goes off the screen or collides with something.
         // Update each shot.
-        list<Shot *>::iterator s;
-        list<Shot *> tmpShots( *shots ); 
-        for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
-            (*s)->update();
-        }
+        for(int i=0; i < shots.capacity(); ++i)
+            if(shots.active(i)) shots[i].update();
     }
 
     // Update each rock.
-    list<Rock *>::iterator r;
-    list<Rock *> tmpRocks( *rocks ); 
-    for(r = tmpRocks.begin(); r != tmpRocks.end(); ++r ) {
-        (*r)->update();
-    }
+    for(int i=0; i < rocks.capacity(); ++i)
+        if(rocks.active(i)) rocks[i].update();
 
     // Update each spinner.
-    list<Spinner *>::iterator sp;
-    list<Spinner *> tmpSpinners( *spinners ); 
-    for(sp = tmpSpinners.begin(); sp != tmpSpinners.end(); ++sp ) {
-        (*sp)->update();
-    }
+    for(int i=0; i < spinners.capacity(); ++i)
+        if(spinners.active(i)) spinners[i].update();
 
     // Update each ufo.
-    list<UFO *>::iterator u;
-    list<UFO *> tmpUFOs( *ufos ); 
-    for(u = tmpUFOs.begin(); u != tmpUFOs.end(); ++u ) {
-        (*u)->update();
-    }
+    for(int i=0; i < ufos.capacity(); ++i)
+        if(ufos.active(i)) ufos[i].update();
 
     // Update each ufo_shot.
-    list<UFOShot *>::iterator us;
-    list<UFOShot *> tmpUFOShots( *ufo_shots ); 
-    for(us = tmpUFOShots.begin(); us != tmpUFOShots.end(); ++us ) {
-        (*us)->update();
-    }
+    for(int i=0; i < ufo_shots.capacity(); ++i)
+        if(ufo_shots.active(i)) ufo_shots[i].update();
 
     // Update each missile.
-    list<Missile *>::iterator m;
-    list<Missile *> tmpMissiles( *missiles ); 
-    for(m = tmpMissiles.begin(); m != tmpMissiles.end(); ++m ) {
-        (*m)->update();
-    }
+    for(int i=0; i < missiles.capacity(); ++i)
+        if(missiles.active(i)) missiles[i].update();
 
     // Update each explosion.
-    list<Explosion *>::iterator e;
-    list<Explosion *> tmpExplosions( *explosions ); 
-    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
-        (*e)->update();
-    }
+    for(int i=0; i < explosions.capacity(); ++i)
+        if(explosions.active(i)) explosions[i].update();
 
     rules = multiplyer >= 0 ? &LevelRules::RULES[multiplyer-1] : &LevelRules::RULES[0];
 
@@ -181,37 +196,49 @@ void Game::update() {
 
     // Enemy spawning: ///////////////////////////////////////////////////////
 
-    if(next_rock <= 0 && rocks->size() < rules->max_rocks)
+    if(next_rock <= 0 && rocks.size() < rules->max_rocks)
     {
         int to_spawn = ulMin(RAND(rules->max_rock_spawn) + 1,
-                            rules->max_rocks - rocks->size());
+                            rules->max_rocks - rocks.size());
         for(int i=0; i < to_spawn; ++i)
-            rocks->push_back(new Rock(this, (Rock *)NULL, 0, RAND(NUM_ROCK_IMAGES) ));
+        {
+            int id = rocks.add();
+            if(id >= 0)
+                rocks[id].init(id, (Rock *)NULL, 0, RAND(NUM_ROCK_IMAGES));
+        }
         next_rock = RAND_RANGE(rules->min_rock_rest,rules->max_rock_rest);
     }
 
-    if(next_spinner <= 0 && spinners->size() < rules->max_spinners)
+    if(next_spinner <= 0 && spinners.size() < rules->max_spinners)
     {
         int to_spawn = ulMin(RAND(rules->max_spinner_spawn) + 1,
-                            rules->max_spinners - spinners->size());
+                            rules->max_spinners - spinners.size());
         for(int i=0; i < to_spawn; ++i)
-            spinners->push_back(new Spinner(this));
+        {
+            int id = spinners.add();
+            if(id >= 0)
+                spinners[id].init(id);
+        }
         next_spinner = RAND_RANGE(rules->min_spinner_rest,rules->max_spinner_rest);
     }
 
-    if(next_missile <= 0 && missiles->size() < rules->max_missiles)
+    if(next_missile <= 0 && missiles.size() < rules->max_missiles)
     {
-        missiles->push_back(new Missile(this));
+        int id = missiles.add();
+        if(id >= 0)
+            missiles[id].init(id);
         next_missile = RAND_RANGE(rules->min_missile_rest,rules->max_missile_rest);
     }
 
-    if(next_ufo <= 0 && ufos->size() < rules->max_ufos)
+    if(next_ufo <= 0 && ufos.size() < rules->max_ufos)
     {
-        ufos->push_back(new UFO(this));
+        int id = ufos.add();
+        if(id >= 0)
+            ufos[id].init(id);
         next_ufo = RAND_RANGE(rules->min_ufo_rest,rules->max_ufo_rest);
     }
 
-    if( ufos->size() <= 0 ) {
+    if( ufos.size() <= 0 ) {
         next_rock -= FRAME_LENGTH_MS;
         next_spinner -= FRAME_LENGTH_MS;
         next_ufo -= FRAME_LENGTH_MS;
@@ -253,7 +280,10 @@ void Game::updateScore(int amount) {
         multiplyer = 0;
     }
 
-    speed_scale = MIN_SPEED_SCALE + ulMin(MAX_SPEED_SCALE - MIN_SPEED_SCALE,
+    if(score < 0)
+        speed_scale = MIN_SPEED_SCALE;
+    else
+        speed_scale = MIN_SPEED_SCALE + ulMin(MAX_SPEED_SCALE - MIN_SPEED_SCALE,
                                           sqrt((float)score/(float)X6_LEVEL_SCORE));
 }
 
@@ -261,6 +291,8 @@ void Game::intro_update() {
     ulReadKeys(0);
     if(ul_keys.pressed.start)
     {
+        SFX::mute();
+        SFX::unmute();
         if(intro_progress <= INTRO_STEP_COUNT-2)
             intro_progress = INTRO_STEP_COUNT-1;
         else
@@ -365,51 +397,36 @@ void Game::draw() {
     }
     ulDrawImageXY( bgImg, 0, bg_y_offset );
 
-
     // Draw all the shots:
-    std::list<Shot *>::iterator s;
-    for(s = shots->begin(); s != shots->end(); ++s ) {
-        (*s)->draw();
-    }
-    
+    for(int i=0; i < shots.capacity(); ++i)
+        if(shots.active(i)) shots[i].draw();
+
     // Draw all the rocks:
-    std::list<Rock *>::iterator r;
-    for(r = rocks->begin(); r != rocks->end(); ++r ) {
-        (*r)->draw();
-    }
+    for(int i=0; i < rocks.capacity(); ++i)
+        if(rocks.active(i)) rocks[i].draw();
 
     // Draw all the spinners:
-    std::list<Spinner *>::iterator sp;
-    for(sp = spinners->begin(); sp != spinners->end(); ++sp ) {
-        (*sp)->draw();
-    }
+    for(int i=0; i < spinners.capacity(); ++i)
+        if(spinners.active(i)) spinners[i].draw();
 
     // Draw all the missiles:
-    std::list<Missile *>::iterator m;
-    for(m = missiles->begin(); m != missiles->end(); ++m ) {
-        (*m)->draw();
-    }
+    for(int i=0; i < missiles.capacity(); ++i)
+        if(missiles.active(i)) missiles[i].draw();
 
     // Draw all the ufos:
-    std::list<UFO *>::iterator u;
-    for(u = ufos->begin(); u != ufos->end(); ++u ) {
-        (*u)->draw();
-    }
+    for(int i=0; i < ufos.capacity(); ++i)
+        if(ufos.active(i)) ufos[i].draw();
 
     // Draw all the ufo_shots:
-    std::list<UFOShot *>::iterator us;
-    for(us = ufo_shots->begin(); us != ufo_shots->end(); ++us ) {
-        (*us)->draw();
-    }
+    for(int i=0; i < ufo_shots.capacity(); ++i)
+        if(ufo_shots.active(i)) ufo_shots[i].draw();
 
     // Draw all the explosions:
-    list<Explosion *>::iterator e;
-    for(e = explosions->begin(); e != explosions->end(); ++e ) {
-        (*e)->draw();
-    }
+    for(int i=0; i < explosions.capacity(); ++i)
+        if(explosions.active(i)) explosions[i].draw();
 
 
-    score_display += ((score - score_display)/5.0)+0.1;
+    score_display += ((score - score_display)/5.0)+(score>0?0.1:-0.1);
 
     if( lives >= 0 ) {
         theMan->draw();
@@ -436,6 +453,8 @@ void Game::draw() {
     ulPrintf_xy(0, FLOOR*2+4, "        %s", lives_str);
     ulSetTextColor( WHITE );
 
+    print_debug_info();
+
 	//End the drawing
 	ulEndDrawing();
 
@@ -449,6 +468,7 @@ void Game::draw() {
 }
 
 void Game::death() {
+    if(just_died) return;
     // This gets called each time the player dies. It should be called within
     // the update() call in mainLoop.
     //  It enters it's own loop to display the death animation and 
@@ -459,88 +479,69 @@ void Game::death() {
     SFX::death();
     --lives;
     if(lives < 0)
-        SFX::muted = true;
-    list<Shot *> *old_shots = shots;
-    list<Explosion *> *old_explosions = explosions;
-    list<Rock *> *old_rocks = rocks;
-    list<Spinner *> *old_spinners = spinners;
-    list<Missile *> *old_missiles = missiles;
-    list<UFO *> *old_ufos = ufos;
-    list<UFOShot *> *old_ufo_shots = ufo_shots;
+        SFX::muted=true;
     shake_amt = 0.0;
 
-    /*
-    list<Shot *>::iterator s;
-    list<Shot *> tmpShots( *shots ); 
-    for(s = tmpShots.begin(); s != tmpShots.end(); ++s ) {
-        delete *s;
-    }
-    
-    list<Explosion *>::iterator e;
-    list<Explosion *> tmpExplosions( *explosions ); 
-    for(e = tmpExplosions.begin(); e != tmpExplosions.end(); ++e ) {
-        delete *e;
+    shots.deinit_clear();
+    rocks.deinit_clear();
+    explosions.deinit_clear();
+    spinners.deinit_clear();
+    missiles.deinit_clear();
+    ufos.deinit_clear();
+    ufo_shots.deinit_clear();
+
+    for(int i=0;i<DEATH_DEBRIS_COUNT; ++i) {
+        int id = debris.add();
+        debris[id].init(id,
+            theMan->x,
+            theMan->y+4,
+            //cos(-PI)*DEATH_DEBRIS_SPEED,
+            //sin(-PI)*DEATH_DEBRIS_SPEED);
+            cos(i*DEATH_DEBRIS_ANG-PI)*DEATH_DEBRIS_SPEED,
+            sin(i*DEATH_DEBRIS_ANG-PI)*DEATH_DEBRIS_SPEED);
     }
 
-    list<Rock *>::iterator r;
-    list<Rock *> tmpRocks( *rocks ); 
-    for(r = tmpRocks.begin(); r != tmpRocks.end(); ++r ) {
-        delete *r;
-    }
-
-    list<Spinner *>::iterator sp;
-    list<Spinner *> tmpSpinners( *spinners ); 
-    for(sp = tmpSpinners.begin(); sp != tmpSpinners.end(); ++sp ) {
-        delete *sp;
-    }*/
-
-    delete old_shots;
-    delete old_explosions;
-    delete old_rocks;
-    delete old_spinners;
-    delete old_missiles;
-    delete old_ufos;
-    delete old_ufo_shots;
-    shots = new list<Shot *>;
-    rocks = new list<Rock *>;
-    explosions = new list<Explosion *>;
-    spinners = new list<Spinner *>;
-    missiles = new list<Missile *>;
-    ufos = new list<UFO *>;
-    ufo_shots = new list<UFOShot *>;
 
     updateScore(DEATH_SCORE);
 
     int frameCount = 0;
+
     while(frameCount < DEATH_FRAME_COUNT) {
         ulStartDrawing2D();
-
         // First draw background
         ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, RED);
         SHAKE(DEATH_SHAKE_AMT*(float)(DEATH_FRAME_COUNT-frameCount)/DEATH_FRAME_COUNT);
         ulDrawImageXY( bgImg, 0, bg_y_offset );
 
+        for(int i=0;i<DEATH_DEBRIS_COUNT;++i) {
+            debris[i].update();
+            debris[i].draw();
+        }
+        
         ulEndDrawing();
         //ulSyncFrame();
+        //print_debug_info();
         swiWaitForVBlank();
         ++frameCount;
     }
+    debris.deinit_clear();
     ulResetScreenView();
 }
 
 void Game::mainLoop() {
-    consoleDemoInit();
+    //consoleDemoInit();
 
     while(intro_progress < INTRO_STEP_COUNT)
     {
         intro_update();
         intro_draw();
+        print_debug_info();
     }
 
     //To avoid a divide by zero the first time
 	totalTime = 1;
 
-	while(1) {
+	while(!done) {
         //Initialize the timers to measure the framerate
 	    TIMER1_CR = 0;
 	    TIMER1_DATA = 0;
@@ -548,21 +549,6 @@ void Game::mainLoop() {
 
         update();
         draw();
-        //#define DEBUG
-        #ifdef DEBUG
-        iprintf("\x1b[0;0H                  ");
-        iprintf("\x1b[1;0H                  ");
-        iprintf("\x1b[2;0H                  ");
-        iprintf("\x1b[3;0H                  ");
-        iprintf("\x1b[4;0H                  ");
-        iprintf("\x1b[5;0H                  ");
-		iprintf("\x1b[0;0Hfutility_h = %d", SFX::futility_h);
-		iprintf("\x1b[1;0Hhit_h = %d", SFX::hit_h);
-		iprintf("\x1b[2;0Hspinner_h = %d", SFX::spinner_h);
-		iprintf("\x1b[3;0Hmissile_h = %d", SFX::missile_h);
-		iprintf("\x1b[4;0Hufo_h = %d", SFX::ufo_h);
-		iprintf("\x1b[5;0Hdeath_h = %d", SFX::death_h);
-        #endif
 
 		totalTime = TIMER1_DATA;
 	}

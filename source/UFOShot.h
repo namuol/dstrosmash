@@ -10,8 +10,7 @@ public:
     float vx, vy;
     static UL_IMAGE *image;
     static void loadImages();
-    UFOShot(Game *game, const UFO* parent);
-    ~UFOShot();
+    void init(int id, const UFO* parent);
    
     void update();
     void draw();

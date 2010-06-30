@@ -9,8 +9,7 @@
 
 class Shot : public Sprite {
 public:
-    Shot(Game *game);
-    ~Shot();
+    void init(int id);
 
     void update();
     void draw();

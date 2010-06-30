@@ -9,28 +9,26 @@
 
 UL_IMAGE *Explosion::loaded_img = NULL;
 
-Explosion::Explosion(Game *game, float x, float y)
-: Sprite(game, 
-         x-EXPLOSION_FRAME_WIDTH/4, y-EXPLOSION_FRAME_HEIGHT/4,
-         EXPLOSION_FRAME_WIDTH/2,
-         EXPLOSION_FRAME_HEIGHT/2 )
+void Explosion::init(int id, float x, float y)
 {
+    Sprite::init(id, 
+                 x-EXPLOSION_FRAME_WIDTH/4, y-EXPLOSION_FRAME_HEIGHT/4,
+                 EXPLOSION_FRAME_WIDTH/2,
+                 EXPLOSION_FRAME_HEIGHT/2 );
     if( loaded_img==NULL ) 
         loaded_img=ulLoadImageFilePNG((const char*)explosion, (int)explosion_size, UL_IN_VRAM, UL_PF_PAL4);
     img = loaded_img;
     frame_count = 0;
 
     SFX::hit();
-}
-
-Explosion::~Explosion() {
-    game->explosions->remove(this);
+    update();
+    --frame_count;
 }
 
 void Explosion::update() {
     ++frame_count;
     if( frame_count > EXPLOSION_FRAME_COUNT*EXPLOSION_FRAME_LENGTH ) {
-        delete this;
+        game->explosions.rem_deinit(id);
         return;
     }
 

@@ -7,8 +7,8 @@
 #define SPINNER_FRAME_WIDTH 16
 
 #define MIN_SPINNER_YSPEED 0.5
-#define MAX_SPINNER_YSPEED 1
-#define MIN_SPINNER_XSPEED 0
+#define MAX_SPINNER_YSPEED 1.0
+#define MIN_SPINNER_XSPEED 0.0
 #define MAX_SPINNER_XSPEED 0.25
 
 class Spinner : public Sprite {
@@ -22,9 +22,9 @@ public:
     static UL_IMAGE* loaded_img;
     static void loadImages();
 
-    Spinner(Game *game);
-    ~Spinner();
-   
+    void init(int id);
+    void deinit();
+
     void update();
     void draw();
     void kill(DeathType deathType);

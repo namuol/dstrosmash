@@ -7,6 +7,12 @@
 #define CEILING 0
 #define MAN_SPEED 2
 #define MAX_SHOTS 2
+#define MAX_ROCKS 16
+#define MAX_EXPLOSIONS 16
+#define MAX_SPINNERS 5
+#define MAX_MISSILES 2
+#define MAX_UFOS 1
+#define MAX_UFO_SHOTS 10
 
 #define MIN_SPEED_SCALE 0.3
 #define MAX_SPEED_SCALE 1.0
@@ -73,7 +79,7 @@
 #define X5_LEVEL_SCORE 50000
 #define X6_LEVEL_SCORE 100000
 
-#define STARTING_LIVES 2
+#define STARTING_LIVES 4
 #define ONE_UP_SCORE 6000 // Every one of these gets you +1 life.
 
 #define DEATH_FRAME_COUNT 130
@@ -89,9 +95,15 @@
 #define INTRO_STEP_RATE 300
 #define INTRO_STEP_COUNT 19
 
+#define DEATH_DEBRIS_COUNT 5
+#define PI 3.14159265
+#define DEATH_DEBRIS_ANG (PI/(DEATH_DEBRIS_COUNT-1))
+#define DEATH_DEBRIS_SPEED 0.4
+
 #include <ctime>
 #include <cstdlib>
 #include <list>
+#include "vector.h"
 
 #include <maxmod9.h>
 
@@ -105,10 +117,14 @@
 #include "UFO.h"
 #include "UFOShot.h"
 #include "Missile.h"
+#include "Debris.h"
 #include "LevelRules.h"
+
+#define game (Game::inst())
 
 class Game {
 private:
+    static Game* _inst;
     static const int LEVEL_COLORS[];
     int totalTime;
 	static UL_IMAGE *bgImg;
@@ -136,8 +152,16 @@ private:
     int bg_y_offset;
 
     bool paused;
+    bool done;
+    bool just_died;
+
+protected:
+    Game();
+    ~Game();
 
 public:
+    int sprite_count;
+
     float shake_amt;
     int multiplyer;
     float speed_scale;
@@ -146,18 +170,20 @@ public:
     int one_up_total;
 
     Man *theMan;
-    std::list<Shot *> *shots;
-    std::list<Rock *> *rocks;
-    std::list<Explosion *> *explosions;
-    std::list<Spinner *> *spinners;
-    std::list<UFO *> *ufos;
-    std::list<UFOShot *> *ufo_shots;
-    std::list<Missile *> *missiles;
-    Game();
-    ~Game();
+    vector<Shot, MAX_SHOTS> shots;
+    vector<Rock, MAX_ROCKS> rocks;
+    vector<Explosion, MAX_EXPLOSIONS> explosions;
+    vector<Spinner, MAX_SPINNERS> spinners;
+    vector<Missile, MAX_MISSILES> missiles;
+    vector<UFO, MAX_UFOS> ufos;
+    vector<UFOShot, MAX_UFO_SHOTS> ufo_shots;
+    vector<Debris, DEATH_DEBRIS_COUNT> debris;
+
+    static Game* inst();
 
     const LevelRules* getRules() const;
-   
+
+    void init();   
     void mainLoop();
     void updateScore(int amount);
     void death();
