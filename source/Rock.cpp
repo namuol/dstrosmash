@@ -119,7 +119,7 @@ void Rock::update() {
         return;
     }
 
-    for(int i=0; i<game->shots.capacity(); ++i) {
+    for(unsigned int i=0; i<game->shots.capacity(); ++i) {
         if(game->shots.active(i) && 
            COLTEST(this, &game->shots[i]) ) {
             game->shots.rem(i);
@@ -129,7 +129,7 @@ void Rock::update() {
         }
     }
 
-    for(int i=0; i<game->ufo_shots.capacity(); ++i) {
+    for(unsigned int i=0; i<game->ufo_shots.capacity(); ++i) {
         if(game->ufo_shots.active(i) && 
            COLTEST(this, &game->ufo_shots[i]) ) {
             game->ufo_shots.rem(i);
@@ -140,7 +140,7 @@ void Rock::update() {
     }
 
 
-    for(int i=0; i<game->explosions.capacity(); ++i) {
+    for(unsigned int i=0; i<game->explosions.capacity(); ++i) {
         if(game->explosions.active(i) &&
             COLTEST(this, &(game->explosions[i])) ) {
             kill(EXPLODED);

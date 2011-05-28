@@ -52,7 +52,7 @@ void Missile::update() {
             return;
         }
 
-        for(int i=0; i<game->shots.capacity(); ++i) {
+        for(unsigned int i=0; i<game->shots.capacity(); ++i) {
             if(game->shots.active(i) && 
                COLTEST(this, &(game->shots[i])) ) {
                 game->shots.rem(i);
@@ -62,7 +62,7 @@ void Missile::update() {
             }
         }
 
-        for(int i=0; i<game->rocks.capacity(); ++i) {
+        for(unsigned int i=0; i<game->rocks.capacity(); ++i) {
             if(game->rocks.active(i) &&
                 COLTEST(this, &(game->rocks[i])) ) {
                 game->rocks.rem(i);
@@ -72,7 +72,7 @@ void Missile::update() {
             }
         }
 
-        for(int i=0; i<game->ufos.capacity(); ++i) {
+        for(unsigned int i=0; i<game->ufos.capacity(); ++i) {
             if(game->ufos.active(i) &&
                 COLTEST(this, &(game->ufos[i])) ) {
                 game->ufos.rem(i);
@@ -82,7 +82,7 @@ void Missile::update() {
             }
         }
 
-        for(int i=0; i<game->ufo_shots.capacity(); ++i) {
+        for(unsigned int i=0; i<game->ufo_shots.capacity(); ++i) {
             if(game->ufo_shots.active(i) &&
                 COLTEST(this, &(game->ufo_shots[i])) ) {
                 game->ufo_shots.rem(i);
@@ -92,7 +92,7 @@ void Missile::update() {
             }
         }
 
-        for(int i=0; i<game->explosions.capacity(); ++i) {
+        for(unsigned int i=0; i<game->explosions.capacity(); ++i) {
             if(game->explosions.active(i) &&
                 COLTEST(this, &(game->explosions[i])) ) {
                 kill(EXPLODED);
@@ -100,8 +100,8 @@ void Missile::update() {
             }
         }
         
-        dx = game->theMan->x + game->theMan->w*0.5 - x;
-        dy = game->theMan->y + game->theMan->h*0.5 - y;
+        dx = game->theMan.x + game->theMan.w*0.5 - x;
+        dy = game->theMan.y + game->theMan.h*0.5 - y;
         dr = sqrt(dx*dx + dy*dy);
 
         vxi = (dx/dr)*speed;

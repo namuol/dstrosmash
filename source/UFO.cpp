@@ -31,6 +31,8 @@ void UFO::init(int id)
         vx = -game->getRules()->ufo_speed*game->speed_scale;
         x = RIGHT_WALL;
     }
+    
+    offscreen = true;
 
     SFX::ufo();
     update();
@@ -41,13 +43,32 @@ void UFO::deinit() {
 }
 
 void UFO::update() {
+    if(next_beep <= 0)
+    {
+        if(beeping)
+        {
+            SFX::ufo_beep_stop();
+            next_beep = UFO_BEEP_MS/game->speed_scale;
+        }
+        else
+        {
+            offscreen = false;
+            SFX::ufo_beep();
+            next_beep = UFO_DRONE_MS/game->speed_scale;
+        }
+        beeping = !beeping;
+    }
+    next_beep -= FRAME_LENGTH_MS;
+
+    if(offscreen) return;
+
     if( (vx > 0 && LEFT(this) > RIGHT_WALL) ||
         (vx < 0 && RIGHT(this) < LEFT_WALL) ) {
         kill(OUT_OF_BOUNDS);
         return;
     }
 
-    for(int i=0; i<game->shots.capacity(); ++i) {
+    for(unsigned int i=0; i<game->shots.capacity(); ++i) {
         if(game->shots.active(i) && 
            COLTEST(this, &(game->shots[i])) ) {
             game->shots.rem(i);
@@ -60,23 +81,6 @@ void UFO::update() {
     x += vx;
     frame = ulAbs(UFO_FRAME_HEIGHT*((imgx/9)%UFO_FRAME_COUNT));
 
-    if(next_beep <= 0)
-    {
-        if(beeping)
-        {
-            SFX::ufo_beep_stop();
-            next_beep = UFO_BEEP_MS/game->speed_scale;
-        }
-        else
-        {
-            SFX::ufo_beep();
-            next_beep = UFO_DRONE_MS/game->speed_scale;
-        }
-        beeping = !beeping;
-    }
-    next_beep -= FRAME_LENGTH_MS;
-
-
     if(next_shot <= 0)
     {
         shoot();
@@ -87,6 +91,7 @@ void UFO::update() {
 }
 
 void UFO::draw() {
+    if(offscreen) return;
     ulSetImageTileSize(img, 0, frame,
                        UFO_FRAME_WIDTH, UFO_FRAME_HEIGHT);
     Sprite::draw();

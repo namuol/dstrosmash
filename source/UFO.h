@@ -18,6 +18,7 @@ private:
     int next_shot;
     int next_beep;
     bool beeping;
+    bool offscreen;
 
 public:
     float vx;

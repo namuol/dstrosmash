@@ -15,7 +15,7 @@ public:
     T data;
 };
 
-template<class T, int N>
+template<class T, unsigned int N>
 class vector {
     unsigned int _size;
     unsigned int first_avail;
@@ -23,14 +23,14 @@ class vector {
 
 public:
     // Returns the current number of active elements in the vector.
-    inline int size() { return _size; }
+    inline unsigned int size() { return _size; }
     // Returns the maximum number of elements in the vector.
-    inline int capacity() { return N; }
+    inline unsigned int capacity() { return N; }
 
     vector()
     : _size(0), first_avail(0)
     {
-        for(int i=0; i<N; ++i)
+        for(unsigned int i=0; i<N; ++i)
             items[i].active=false;
     }
 
@@ -38,7 +38,7 @@ public:
     vector(const vector<T,N>& other)
     {
         _size = 0;
-        for(int i=0;i<N;++i)
+        for(unsigned int i=0;i<N;++i)
         {
             items[i].active = other.items[i].active;
             if(items[i].active)
@@ -54,7 +54,7 @@ public:
     // Returns -1 if the item couldn't be added due to limited space.
     int add(const T& data)
     {
-        int i;
+        unsigned int i;
         for(i=0; i<N && items[i].active; ++i);
         if(i >= N) return -1;
         
@@ -72,7 +72,7 @@ public:
     // Returns -1 if the item couldn't be added due to limited space.
     int add()
     {
-        int i;
+        unsigned int i;
         for(i=0; i<N && items[i].active; ++i);
         if(i >= N) return -1;
         
@@ -83,7 +83,7 @@ public:
         return i;
     }
 
-    void rem(int index)
+    void rem(unsigned int index)
     {
         if(items[index].active) 
         {
@@ -92,7 +92,7 @@ public:
         }
     }
 
-    void rem_deinit(int index)
+    void rem_deinit(unsigned int index)
     {
         if(items[index].active) 
         {
@@ -105,7 +105,7 @@ public:
 
     void clear()
     {
-        for(int i=0; _size>0 && i<N; ++i)
+        for(unsigned int i=0; _size>0 && i<N; ++i)
         {
             if(items[i].active) 
             {
@@ -117,7 +117,7 @@ public:
 
     void deinit_clear()
     {
-        for(int i=0; _size>0 && i<N; ++i)
+        for(unsigned int i=0; _size>0 && i<N; ++i)
         {
             if(items[i].active) 
             {
@@ -128,14 +128,14 @@ public:
         }
     }
 
-    bool active(int index) const
+    bool active(unsigned int index) const
     {
         return index < N && index >= 0 && items[index].active;
     }
 
-    T& operator[](int index)
+    T& operator[](unsigned int index)
     {
-        return items[static_cast<unsigned int>(index)%N].data;
+        return items[index%N].data;
     }
 };
 

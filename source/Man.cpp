@@ -15,9 +15,19 @@ using namespace std;
 
 #include "man.h"
 
+UL_IMAGE* Man::image = NULL;
+
+Man::Man()
+: Sprite(image,
+        RIGHT_WALL/2, 
+        FLOOR-MAN_HEIGHT) {
+    next_shot = 400;
+    auto_fire = false;
+}
+
 //Constructor
 Man::Man(float x, float y) 
-: Sprite(ulLoadImageFilePNG((const char*)man,(int)man_size,UL_IN_VRAM,UL_PF_PAL4),
+: Sprite(image,
         x, y ) {
     next_shot = 400;
     auto_fire = false;
@@ -25,7 +35,6 @@ Man::Man(float x, float y)
 
 //Destructor
 Man::~Man()	{
-    //ulDeleteImg(img);
 }
 
 void Man::update() {
@@ -46,7 +55,7 @@ void Man::update() {
     if( ul_keys.pressed.X || ul_keys.pressed.Y )
         hyper();
 
-    for(int i=0; i<game->rocks.capacity(); ++i) {
+    for(unsigned int i=0; i<game->rocks.capacity(); ++i) {
         if(game->rocks.active(i) &&
             COLTEST(this, &(game->rocks[i])) ) {
             game->death();
@@ -54,7 +63,7 @@ void Man::update() {
         }
     }
 
-    for(int i=0; i<game->ufo_shots.capacity(); ++i) {
+    for(unsigned int i=0; i<game->ufo_shots.capacity(); ++i) {
         if(game->ufo_shots.active(i) &&
             COLTEST(this, &(game->ufo_shots[i])) ) {
             game->death();
@@ -62,7 +71,7 @@ void Man::update() {
         }
     }
 
-    for(int i=0; i<game->missiles.capacity(); ++i) {
+    for(unsigned int i=0; i<game->missiles.capacity(); ++i) {
         if(game->missiles.active(i) &&
             COLTEST(this, &(game->missiles[i])) ) {
             game->death();
@@ -70,7 +79,7 @@ void Man::update() {
         }
     }
 
-    for(int i=0; i<game->explosions.capacity(); ++i) {
+    for(unsigned int i=0; i<game->explosions.capacity(); ++i) {
         if(game->explosions.active(i) &&
             COLTEST(this, &(game->explosions[i])) ) {
             game->death();
@@ -99,4 +108,9 @@ void Man::hyper() {
     // Teleport to a random position
     SFX::hyper();
     x = RAND(RIGHT_WALL - w + 1);
+}
+
+void Man::loadImages() {
+    if (image == NULL)
+        image = ulLoadImageFilePNG((const char*)man,(int)man_size,UL_IN_VRAM,UL_PF_PAL4);
 }

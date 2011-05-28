@@ -17,7 +17,7 @@ void UFOShot::init(int id, const UFO* parent)
            parent->y+parent->h/4);
 
     vy = 1.0;
-    vx = ((x-game->theMan->x)*vy)/(y-game->theMan->y);
+    vx = ((x-game->theMan.x)*vy)/(y-game->theMan.y);
     
     float s = sqrt(vx*vx + vy*vy);
     vx /= s;
@@ -39,7 +39,7 @@ void UFOShot::update() {
         return;
     }
 
-    for(int i=0; i<game->shots.capacity(); ++i) {
+    for(unsigned int i=0; i<game->shots.capacity(); ++i) {
         if(game->shots.active(i) && 
            COLTEST(this, &game->shots[i]) ) {
             game->shots.rem(i);
@@ -50,7 +50,7 @@ void UFOShot::update() {
     }
 
 
-    for(int i=0; i<game->explosions.capacity(); ++i) {
+    for(unsigned int i=0; i<game->explosions.capacity(); ++i) {
         if(game->explosions.active(i) &&
             COLTEST(this, &(game->explosions[i])) ) {
             kill(EXPLODED);

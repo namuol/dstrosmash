@@ -254,11 +254,21 @@ void SFX::hyper() {
 }
 
 void SFX::mute() {
-    mmEffectCancelAll();
+    mmEffectCancel(hit_h);
+    mmEffectCancel(futility_h);
+    mmEffectScaleRate(spinner_h,0);
+    mmEffectScaleRate(ufo_h,0);
+    mmEffectScaleRate(missile_h,0);
+    mmEffectScaleRate(death_h,0);
+
     muted = true;
 }
 
 void SFX::unmute() {
+    mmEffectScaleRate(spinner_h,1024);
+    mmEffectScaleRate(ufo_h,1024);
+    mmEffectScaleRate(missile_h,1024);
+    mmEffectScaleRate(death_h,1024);
     muted = false;
 }
 

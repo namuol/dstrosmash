@@ -17,7 +17,7 @@ using namespace std;
 #include "soundbank.h"
 #include "sfx.h"
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define print_debug_info() \
     iprintf("\x1b[0;0H                  ");\
@@ -48,6 +48,16 @@ using namespace std;
 #define print_debug_info() 
 #endif
 
+#define HANDLE_SWAP_BUTTON() if(ul_keys.pressed.L) lcdSwap();
+#define HANDLE_PAUSE_BUTTON() {\
+    if(ul_keys.pressed.start) {\
+        paused = !paused;\
+        if(paused)\
+            SFX::mute();\
+        else\
+            SFX::unmute();\
+    }}
+
 Game* Game::_inst = NULL;
 
 // The background color for each level
@@ -67,16 +77,15 @@ UL_IMAGE * Game::introBgImg = NULL;
 Game::Game() {
     bgImg = ulLoadImageFilePNG((const char*)bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL2);
     introBgImg = ulLoadImageFilePNG((const char*)intro_bg, (int)bg_size, UL_IN_VRAM, UL_PF_PAL4);
-    theMan = new Man(RIGHT_WALL/2, FLOOR-MAN_HEIGHT);	
+    theMan=Man(RIGHT_WALL/2, FLOOR-MAN_HEIGHT);	
 }
 
 Game::~Game() {
-    delete theMan;
     delete bgImg;
 }
 
 void Game::init() {
-    theMan->x = RIGHT_WALL/2;
+    theMan.x = RIGHT_WALL/2;
     sprite_count = 0;
     intro_progress = -1; 
     next_intro_step = intro_step_length = 3000; 
@@ -128,55 +137,46 @@ void Game::update() {
     if(lives < 0) { // If GAME OVER
         if(ul_keys.pressed.start)
             done=true;
-    } else if(ul_keys.pressed.start) {
-        paused = !paused;
+    } else {
+        HANDLE_PAUSE_BUTTON();
     }
 
     just_died = false; // Reset the flag.
-
-    if(ul_keys.pressed.R)
-        updateScore(1000);
-
-    if(ul_keys.pressed.L)
-    {
-        int id = missiles.add();
-        missiles[id].init(id);
-    }
 
     if(paused)
         return;
 
     if( lives >= 0 )
     {
-        theMan->update();
+        theMan.update();
 
         // Update each shot.
-        for(int i=0; i < shots.capacity(); ++i)
+        for(unsigned int i=0; i < shots.capacity(); ++i)
             if(shots.active(i)) shots[i].update();
     }
 
     // Update each rock.
-    for(int i=0; i < rocks.capacity(); ++i)
+    for(unsigned int i=0; i < rocks.capacity(); ++i)
         if(rocks.active(i)) rocks[i].update();
 
     // Update each spinner.
-    for(int i=0; i < spinners.capacity(); ++i)
+    for(unsigned int i=0; i < spinners.capacity(); ++i)
         if(spinners.active(i)) spinners[i].update();
 
     // Update each ufo.
-    for(int i=0; i < ufos.capacity(); ++i)
+    for(unsigned int i=0; i < ufos.capacity(); ++i)
         if(ufos.active(i)) ufos[i].update();
 
     // Update each ufo_shot.
-    for(int i=0; i < ufo_shots.capacity(); ++i)
+    for(unsigned int i=0; i < ufo_shots.capacity(); ++i)
         if(ufo_shots.active(i)) ufo_shots[i].update();
 
     // Update each missile.
-    for(int i=0; i < missiles.capacity(); ++i)
+    for(unsigned int i=0; i < missiles.capacity(); ++i)
         if(missiles.active(i)) missiles[i].update();
 
     // Update each explosion.
-    for(int i=0; i < explosions.capacity(); ++i)
+    for(unsigned int i=0; i < explosions.capacity(); ++i)
         if(explosions.active(i)) explosions[i].update();
 
     rules = multiplyer >= 0 ? &LevelRules::RULES[multiplyer-1] : &LevelRules::RULES[0];
@@ -229,7 +229,7 @@ void Game::update() {
             missiles[id].init(id);
         next_missile = RAND_RANGE(rules->min_missile_rest,rules->max_missile_rest);
     }
-
+    
     if(next_ufo <= 0 && ufos.size() < rules->max_ufos)
     {
         int id = ufos.add();
@@ -241,7 +241,8 @@ void Game::update() {
     if( ufos.size() <= 0 ) {
         next_rock -= FRAME_LENGTH_MS;
         next_spinner -= FRAME_LENGTH_MS;
-        next_ufo -= FRAME_LENGTH_MS;
+        if(rules->max_ufos > 0)
+            next_ufo -= FRAME_LENGTH_MS;
         next_missile -= FRAME_LENGTH_MS;
     }
 
@@ -395,48 +396,52 @@ void Game::draw() {
     } else {
         shake_amt = 0.0;
     }
+
     ulDrawImageXY( bgImg, 0, bg_y_offset );
 
-    // Draw all the shots:
-    for(int i=0; i < shots.capacity(); ++i)
-        if(shots.active(i)) shots[i].draw();
-
-    // Draw all the rocks:
-    for(int i=0; i < rocks.capacity(); ++i)
-        if(rocks.active(i)) rocks[i].draw();
-
-    // Draw all the spinners:
-    for(int i=0; i < spinners.capacity(); ++i)
-        if(spinners.active(i)) spinners[i].draw();
-
-    // Draw all the missiles:
-    for(int i=0; i < missiles.capacity(); ++i)
-        if(missiles.active(i)) missiles[i].draw();
-
-    // Draw all the ufos:
-    for(int i=0; i < ufos.capacity(); ++i)
-        if(ufos.active(i)) ufos[i].draw();
-
-    // Draw all the ufo_shots:
-    for(int i=0; i < ufo_shots.capacity(); ++i)
-        if(ufo_shots.active(i)) ufo_shots[i].draw();
-
-    // Draw all the explosions:
-    for(int i=0; i < explosions.capacity(); ++i)
-        if(explosions.active(i)) explosions[i].draw();
-
-
-    score_display += ((score - score_display)/5.0)+(score>0?0.1:-0.1);
-
-    if( lives >= 0 ) {
-        theMan->draw();
-    } else {
+    if (lives < 0) {
         ulPrintf_xy(28, FLOOR/2, "GAME OVER");
         ulPrintf_xy(28, FLOOR/2+16, "Final Score:");
         ulPrintf_xy(28, FLOOR/2+32, "%12i", score);
         ulPrintf_xy(28, FLOOR/2+48, " Peak Score:");
         ulPrintf_xy(28, FLOOR/2+64, "%12i", peak_score);
     }
+
+    // Draw all the shots:
+    for(unsigned int i=0; i < shots.capacity(); ++i)
+        if(shots.active(i)) shots[i].draw();
+
+    // Draw all the rocks:
+    for(unsigned int i=0; i < rocks.capacity(); ++i)
+        if(rocks.active(i)) rocks[i].draw();
+
+    // Draw all the spinners:
+    for(unsigned int i=0; i < spinners.capacity(); ++i)
+        if(spinners.active(i)) spinners[i].draw();
+
+    // Draw all the missiles:
+    for(unsigned int i=0; i < missiles.capacity(); ++i)
+        if(missiles.active(i)) missiles[i].draw();
+
+    // Draw all the ufos:
+    for(unsigned int i=0; i < ufos.capacity(); ++i)
+        if(ufos.active(i)) ufos[i].draw();
+
+    // Draw all the ufo_shots:
+    for(unsigned int i=0; i < ufo_shots.capacity(); ++i)
+        if(ufo_shots.active(i)) ufo_shots[i].draw();
+
+    // Draw all the explosions:
+    for(unsigned int i=0; i < explosions.capacity(); ++i)
+        if(explosions.active(i)) explosions[i].draw();
+
+
+    score_display += ((score - score_display)/5.0)+(score>0?0.1:-0.1);
+
+    if( lives >= 0 ) {
+        theMan.draw();
+    } 
+
     if( lives > 6 )
         sprintf(lives_str, "*%-6i", lives);
     else
@@ -453,7 +458,7 @@ void Game::draw() {
     ulPrintf_xy(0, FLOOR*2+4, "        %s", lives_str);
     ulSetTextColor( WHITE );
 
-    print_debug_info();
+    //print_debug_info();
 
 	//End the drawing
 	ulEndDrawing();
@@ -493,20 +498,22 @@ void Game::death() {
     for(int i=0;i<DEATH_DEBRIS_COUNT; ++i) {
         int id = debris.add();
         debris[id].init(id,
-            theMan->x,
-            theMan->y+4,
-            //cos(-PI)*DEATH_DEBRIS_SPEED,
-            //sin(-PI)*DEATH_DEBRIS_SPEED);
+            theMan.x,
+            theMan.y+4,
             cos(i*DEATH_DEBRIS_ANG-PI)*DEATH_DEBRIS_SPEED,
             sin(i*DEATH_DEBRIS_ANG-PI)*DEATH_DEBRIS_SPEED);
     }
-
 
     updateScore(DEATH_SCORE);
 
     int frameCount = 0;
 
     while(frameCount < DEATH_FRAME_COUNT) {
+        ulReadKeys(0);
+        HANDLE_PAUSE_BUTTON();
+        HANDLE_SWAP_BUTTON();
+        if(paused) continue;
+
         ulStartDrawing2D();
         // First draw background
         ulDrawFillRect(0, 0, UL_SCREEN_WIDTH, UL_SCREEN_HEIGHT, RED);
@@ -519,21 +526,22 @@ void Game::death() {
         }
         
         ulEndDrawing();
-        //ulSyncFrame();
-        //print_debug_info();
+        print_debug_info();
+
         swiWaitForVBlank();
         ++frameCount;
     }
+
     debris.deinit_clear();
     ulResetScreenView();
 }
 
 void Game::mainLoop() {
-    //consoleDemoInit();
 
     while(intro_progress < INTRO_STEP_COUNT)
     {
         intro_update();
+        HANDLE_SWAP_BUTTON();
         intro_draw();
         print_debug_info();
     }
@@ -548,6 +556,7 @@ void Game::mainLoop() {
 	    TIMER1_CR = TIMER_DIV_64 | TIMER_ENABLE;
 
         update();
+        HANDLE_SWAP_BUTTON();
         draw();
 
 		totalTime = TIMER1_DATA;

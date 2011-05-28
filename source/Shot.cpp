@@ -6,8 +6,8 @@
 
 void Shot::init(int id) {
     Sprite::init(id,
-                 round(Game::inst()->theMan->x)+MAN_WIDTH/2,
-                 Game::inst()->theMan->y,
+                 round(Game::inst()->theMan.x)+MAN_WIDTH/2,
+                 Game::inst()->theMan.y,
                  SHOT_WIDTH,
                  SHOT_HEIGHT);
 }

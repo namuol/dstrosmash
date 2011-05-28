@@ -169,7 +169,7 @@ public:
     int peak_score;
     int one_up_total;
 
-    Man *theMan;
+    Man theMan;
     vector<Shot, MAX_SHOTS> shots;
     vector<Rock, MAX_ROCKS> rocks;
     vector<Explosion, MAX_EXPLOSIONS> explosions;

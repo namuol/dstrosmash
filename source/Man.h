@@ -1,6 +1,7 @@
 #ifndef _MAN_H
 #define _MAN_H
 
+#include <ulib/ulib.h>
 #include "Sprite.h"
 
 #define MAN_HEIGHT 8
@@ -12,6 +13,9 @@ class Man : public Sprite {
     int hyper_charge;
 
 public:
+    static UL_IMAGE *image;
+    static void loadImages();
+    Man();
     Man(float x, float y);
     ~Man();
    
