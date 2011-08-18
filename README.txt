@@ -15,7 +15,7 @@ Compatibility:
      should work on most any hardware solution (especially anything in the R3 family).
 
 Installation:
-    Copy the appropriate image (probably 'dstrosmash.nds' to your cart. There are no 
+    Copy the appropriate image (probably 'dstrosmash.nds') to your cart. There are no 
      interactions with the filesystem, so it doesn't matter where you put it.
 
 CONTROLS:
@@ -30,9 +30,9 @@ BUGS:
      cut out entirely, or get "stuck" playing an annoying sound (usually the UFO).
      The only workaround is to turn your volume down; rebooting the DS will also solve this.
 
-    IF YOU ENCOUNTER WHAT YOU THINK IS A BUG, PLEASE LET ME KNOW!
+    Please report any bugs/annoyances here: http://github.com/namuol/dstrosmash/issues
 
 SOURCE CODE:
-    Live source control is here: http://lmn.us.to/bzr/nds/dstrosmash
+    Live source control is here: http://github.com/namuol/dstrosmash
 
-** For easy NDS Homebrew in Linux, try my script: http://lmn.us.to/devkitpro-sh **
+** For easy NDS Homebrew in Linux, try my script: http://github.com/namuol/devkitpro.sh **
