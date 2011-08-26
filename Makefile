@@ -167,7 +167,7 @@ $(OUTPUT).elf	:	$(OFILES)
 #---------------------------------------------------------------------------------
 %.7z: %.ds.gba
 	@rm -rf $(OUTPUT).7z
-	@7z a $(OUTPUT).7z $(CURDIR)/../README.txt $(OUTPUT).nds $(OUTPUT).ds.gba $(OUTPUT).sc.nds
+	@7z a $(OUTPUT).7z $(CURDIR)/../README.markdown $(OUTPUT).nds $(OUTPUT).ds.gba $(OUTPUT).sc.nds
 
 #---------------------------------------------------------------------------------
 %.ds.gba: %.nds
