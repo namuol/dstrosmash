@@ -6,7 +6,7 @@ PATH 		:= $(DEVKITARM)/bin:$(PATH)
 #ARM7BIN		:= -7 $(DEVKITARM)/lib/arm7/arm7.bin
 TEXT1 		:= DSTROSMASH!
 TEXT2 		:= A Remake
-TEXT3 		:= lmn.us.to
+TEXT3 		:= https://lou.wtf
 ICON 		:= -b $(CURDIR)/../logo.bmp
 LOGO		:= -o $(CURDIR)/../logo_wifi.bmp
 
