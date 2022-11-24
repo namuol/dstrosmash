@@ -2,7 +2,7 @@ DSTROSMASH!
 ===========
 > DEFEND YOURSELF AGAINST THE JADED INDIFFERENCE OF THE UNIVERSE
 
-programming by [namuol](louis.acresti@gmail.com) ([homepage](http://lmn.us.to/))
+programming by [namuol](louis.acresti@gmail.com) ([homepage](https://lou.wtf/))
 
 
 ------------
